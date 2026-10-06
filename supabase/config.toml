@@ -1,0 +1,65 @@
+# Supabase project configuration.
+#
+# The GitHub integration reads this file. Without it the integration has no
+# config to apply and `supabase link` / `supabase db push` have nothing to work
+# from locally.
+#
+# project_id is a local label, not the project ref. Change it only if you rename
+# the project locally; it does not have to match the Supabase dashboard.
+
+project_id = "grace-nails-and-beauty-spa"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+# The public site reads a handful of rows per page; nothing paginates deeply.
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+# Match the Supabase platform major version so migrations behave the same
+# locally and on the hosted project. btree_gist and the gist exclusion
+# constraints in 0001 need a real Postgres, not a stub.
+major_version = 15
+
+[db.pooler]
+enabled = false
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+# Overridden per environment; the hosted project uses its own Site URL setting.
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+# The owner account is created by hand in the dashboard (§7: "single owner
+# account to start"), so public sign-up stays off. Leaving it on would let
+# anyone create an account, and although RLS would show them nothing without a
+# business_members row, there is no reason to allow it.
+enable_signup = false
+
+[auth.email]
+enable_signup = false
+enable_confirmations = false
+double_confirm_changes = true
+
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = false
+
+[edge_runtime]
+enabled = false
+
+[analytics]
+enabled = false
