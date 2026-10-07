@@ -1,0 +1,696 @@
+ Nail & Spa as a luxury interactive beauty experience rather than a conventional salon website.
+
+The core idea:
+
+“Your nails are the main character.”
+
+The site should feel elegant, tactile, feminine and premium. Motion should make the nail designs feel alive. It should never feel like a tech demo.
+
+1. Overall visual direction
+
+Style:
+
+* Luxury beauty editorial
+* Soft 3D photography
+* Black, warm ivory, champagne and muted rose
+* Large typography
+* Lots of negative space
+* Slow, smooth movement
+* High-quality nail photography
+* Glass effects used sparingly
+* Subtle reflections and glow
+
+Primary colours:
+
+* Deep Espresso: #171313
+* Warm Ivory: #F7F1EA
+* Soft Rose: #D9BFC0
+* Champagne: #D6B889
+* Nude: #C9A995
+* White: #FFFFFF
+
+The dark sections create contrast. The ivory sections keep the site feeling clean.
+
+2. Opening screen
+
+The first screen should be spectacular.
+
+Left side:
+
+GRACE
+NAIL & SPA
+
+Then:
+
+“Beautiful nails.
+Beautifully done.”
+
+Small text:
+
+Nails, beauty and self-care in [location].
+
+Below:
+
+BOOK YOUR APPOINTMENT
+
+Right side:
+
+A large, photorealistic woman's hand with an exceptional nail set.
+
+The hand is angled diagonally rather than sitting straight.
+
+The fingers slowly move as if the hand is naturally floating.
+
+The nails catch a soft light.
+
+Every few seconds, the light travels across the nails.
+
+This creates a small reflective shimmer.
+
+3. Hero interaction
+
+The cursor controls the lighting.
+
+Move the mouse left:
+
+The highlight moves across the nails.
+
+Move right:
+
+The hand subtly rotates.
+
+Move up:
+
+The camera moves slightly closer.
+
+Move down:
+
+The camera pulls back.
+
+Keep the movement extremely subtle.
+
+On mobile, replace cursor interaction with device-independent scroll movement.
+
+The hand should not continuously spin like a product model. It should breathe.
+
+4. Hero transition
+
+When the visitor scrolls:
+
+The hand moves toward the centre.
+
+The background slowly darkens.
+
+The words disappear.
+
+The hand rotates approximately 20 degrees.
+
+Then the hand moves toward the right side of the screen.
+
+A new section appears underneath.
+
+The effect should feel like one continuous scene rather than separate website sections.
+
+5. Nail style selector
+
+This would be one of the signature features.
+
+Heading:
+
+“Find your set.”
+
+Underneath:
+
+NUDE
+FRENCH
+CHROME
+GLAM
+NAIL ART
+
+When the user clicks a style, the hand changes.
+
+For example:
+
+NUDE
+→ soft nude nails
+
+FRENCH
+→ elegant French tips
+
+CHROME
+→ reflective chrome
+
+GLAM
+→ diamonds and detailed artwork
+
+NAIL ART
+→ elaborate custom design
+
+The transition should morph or crossfade between images.
+
+Do not reload the page.
+
+6. Nail close-up interaction
+
+Create a section where the hand fills most of the screen.
+
+Individual fingers become selectable.
+
+For example:
+
+Thumb
+Index
+Middle
+Ring
+Pinky
+
+When someone selects a nail, the camera zooms into it.
+
+Beside it:
+
+Chrome finish
+Hand-painted detail
+Gel polish
+Custom design
+
+This makes the nail work itself the product.
+
+7. Services section
+
+Avoid standard boring cards.
+
+Instead use a large editorial layout.
+
+NAILS
+
+Gel
+Acrylic
+Manicure
+Nail Art
+French Tips
+
+SPA
+
+Pedicure
+Foot Spa
+Treatment
+
+BEAUTY
+
+Brows
+Lashes
+Other services offered by Grace
+
+Each category occupies a large portion of the screen.
+
+Hovering over a service changes the background image.
+
+For example:
+
+Hover “Chrome Nails”
+
+The entire background becomes a close-up chrome nail.
+
+Hover “French Tips”
+
+The background changes to a French manicure.
+
+This gives visitors visual feedback immediately.
+
+8. Price section
+
+Keep pricing simple.
+
+Do not make visitors search for prices.
+
+Use a clean layout:
+
+SIGNATURE SERVICES
+
+Service | Price
+
+Gel Overlay | Rxxx
+Gel Extensions | Rxxx
+Acrylic | Rxxx
+French Tips | Rxxx
+Nail Art | From Rxxx
+
+Use the actual client's pricing.
+
+The prices should appear with a soft number animation as the visitor reaches the section.
+
+9. “The Grace experience”
+
+Create a full-screen image section.
+
+Large photograph of the salon.
+
+Overlay:
+
+“Take a moment for yourself.”
+
+Then three small points:
+
+Beautiful work
+Relaxed atmosphere
+Personal attention
+
+As the visitor scrolls, the image slowly zooms.
+
+10. Nail gallery
+
+This should be one of the strongest sections.
+
+Instead of a normal grid, use a horizontal gallery.
+
+Large central image.
+
+Smaller images partially visible on both sides.
+
+Scroll horizontally.
+
+Each image rotates slightly as it enters the centre.
+
+Example:
+
+Previous design
+→ CURRENT DESIGN ←
+Next design
+
+Clicking the design opens a full-screen view.
+
+Include:
+
+French
+Chrome
+Nude
+Luxury
+Minimal
+Art
+
+11. Before and after
+
+Use a drag slider.
+
+LEFT:
+
+Before
+
+RIGHT:
+
+After
+
+The visitor physically drags the divider.
+
+This gives the site an interactive element with a clear purpose.
+
+12. Testimonials
+
+Avoid generic testimonial cards.
+
+Use large quotes over photographs.
+
+For example:
+
+“Absolutely beautiful work.”
+
+Then:
+
+★★★★★
+
+Client name
+
+The testimonial slowly fades in while the background image moves slightly.
+
+13. About Grace
+
+This section should feel personal.
+
+Large photograph of the salon or nail technician.
+
+Text:
+
+“Beauty starts with how you feel.”
+
+Then a short story about Grace Nail & Spa.
+
+Keep it human.
+
+Avoid corporate language.
+
+14. Booking experience
+
+This is where the spectacular design needs to become extremely practical.
+
+Click:
+
+BOOK YOUR APPOINTMENT
+
+A full-screen booking panel opens.
+
+Step 1:
+
+Choose service
+
+[Gel]
+[Acrylic]
+[Manicure]
+[Nail Art]
+
+Step 2:
+
+Choose date
+
+Calendar appears.
+
+Step 3:
+
+Choose time
+
+Available slots appear.
+
+10:00
+11:30
+13:00
+14:30
+
+Step 4:
+
+Your details
+
+Name
+Phone
+Email
+
+Step 5:
+
+Confirm appointment
+
+BOOK APPOINTMENT
+
+After booking:
+
+“Your appointment is confirmed.”
+
+Show:
+
+Service
+Date
+Time
+
+Then provide:
+
+Add to calendar
+WhatsApp Grace
+View appointment
+
+15. WhatsApp integration
+
+Make WhatsApp a major conversion path.
+
+Floating button:
+
+CHAT WITH GRACE
+
+On desktop it sits in the lower right.
+
+On mobile it becomes a fixed bottom button.
+
+The booking confirmation should also offer WhatsApp.
+
+16. Scroll behaviour
+
+Use scroll as the storytelling mechanism.
+
+Sequence:
+
+Hero
+↓
+Hand interaction
+↓
+Find your set
+↓
+Services
+↓
+Prices
+↓
+Salon experience
+↓
+Gallery
+↓
+Testimonials
+↓
+About
+↓
+Booking
+
+Each section should transition smoothly into the next.
+
+Avoid excessive scroll-jacking.
+
+Normal browser scrolling should still work.
+
+17. Typography
+
+Use one elegant display font and one clean functional font.
+
+Display:
+
+Cormorant Garamond
+or
+Playfair Display
+
+Body:
+
+Inter
+or
+Manrope
+
+Example:
+
+GRACE
+
+Cormorant Garamond
+
+NAIL & SPA
+
+Inter
+
+Large headings:
+
+“Find your set.”
+
+Small text:
+
+“Designed around you.”
+
+This combination gives the site a premium editorial feel.
+
+18. Micro-interactions
+
+Small details will make the site feel expensive.
+
+Buttons:
+
+Normal:
+BOOK APPOINTMENT
+
+Hover:
+Book your moment →
+
+Cursor:
+Small circular cursor.
+
+Hover over images:
+Cursor changes to:
+
+VIEW
+
+Hover over gallery:
+Image slightly enlarges.
+
+Hover over service:
+Background image changes.
+
+Links:
+Underline animates from left to right.
+
+Images:
+Very subtle scale effect.
+
+19. Loading screen
+
+Keep it short.
+
+White/ivory background.
+
+Centered:
+
+GRACE
+
+NAIL & SPA
+
+A small line underneath slowly expands.
+
+Then the page appears.
+
+Do not make users wait for a fancy loading animation.
+
+20. Mobile design
+
+Do not simply shrink the desktop version.
+
+On mobile:
+
+* Large hero hand
+* Vertical nail selector
+* Swipeable gallery
+* Sticky booking button
+* Large touch targets
+* Reduced animation
+* Optimized images
+* No heavy 3D effects unless performance supports them
+
+The hand interaction becomes swipe-based.
+
+21. Technical architecture
+
+I would build it with:
+
+Next.js
+React
+Tailwind CSS
+GSAP
+Framer Motion
+Three.js only where it adds real value
+Supabase for booking/data
+Cloudinary or optimized image hosting for large imagery
+
+GSAP handles:
+
+* Scroll animations
+* Timeline animations
+* Image transitions
+* Parallax
+* Hand movement
+
+Three.js is optional.
+
+I would not automatically use Three.js. A sequence of high-quality rendered images combined with GSAP could look better and load faster.
+
+22. The important part: the hand
+
+This is where I would spend most of the creative effort.
+
+Instead of trying to create a generic 3D hand, generate a consistent photographic hand model.
+
+Create approximately:
+
+10 to 20 nail designs
+
+3 to 5 hand positions
+
+Different close-up angles
+
+Then use those assets throughout the site.
+
+For example:
+
+Hand 01 + French
+Hand 01 + Chrome
+Hand 01 + Nude
+
+Hand 02 + Acrylic
+Hand 02 + Glam
+Hand 02 + Art
+
+The visitor starts recognising the hand and nail designs as part of the Grace brand.
+
+23. Signature interaction
+
+I would make one interaction the thing people remember.
+
+The visitor reaches:
+
+“WHAT'S YOUR STYLE?”
+
+Five floating nail designs appear.
+
+NUDE
+FRENCH
+CHROME
+GLAM
+ART
+
+They choose one.
+
+The entire interface changes around their choice.
+
+The hand changes.
+
+The background changes.
+
+The typography changes slightly.
+
+The recommended service appears.
+
+Then:
+
+“Ready for your set?”
+
+BOOK YOUR APPOINTMENT
+
+That turns browsing into a booking funnel.
+
+24. Performance rules
+
+This matters.
+
+Do not build a spectacular site that loads slowly.
+
+Use:
+
+WebP/AVIF images
+Lazy loading
+Compressed hero assets
+GPU-friendly transforms
+Minimal blur effects
+Minimal DOM animation
+Reduced-motion support
+Mobile-specific assets
+
+The first screen needs to load quickly.
+
+25. Final visual structure
+
+The complete experience would look like:
+
+GRACE NAIL & SPA
+↓
+Interactive rotating hand
+↓
+“Find your set”
+↓
+Interactive nail designs
+↓
+Services
+↓
+Prices
+↓
+The Grace Experience
+↓
+Interactive gallery
+↓
+Before & After
+↓
+Testimonials
+↓
+About Grace
+↓
+Book Appointment
+↓
+WhatsApp / Contact
+
+The key difference from a normal salon website is the interaction between the sections. The hand, nail designs, gallery and booking system should feel like one continuous experience.
+
+This is also a strong project for you because once you build the underlying system, you could turn the same approach into a reusable premium website system for other South African salons, spas, barbers, beauty clinics and similar businesses.

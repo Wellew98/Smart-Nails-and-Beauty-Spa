@@ -577,3 +577,66 @@ describe('phone normalisation (§12)', () => {
     expect(result.error).toBe('invalid_phone');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Party size — one row holds one slot for the whole party.
+// ---------------------------------------------------------------------------
+describe('Party size', () => {
+  it('defaults to 1 when omitted', async () => {
+    const date = nextWorkingDate();
+    const result = await createBooking({
+      businessId: IDS.business,
+      serviceId: IDS.service.gelManicure,
+      staffId: IDS.staff.sarah,
+      startsAt: at(date, '10:00'),
+      ...customer,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.appointment.party_size).toBe(1);
+  });
+
+  it('persists the given party size', async () => {
+    const date = nextWorkingDate();
+    const result = await createBooking({
+      businessId: IDS.business,
+      serviceId: IDS.service.gelManicure,
+      staffId: IDS.staff.sarah,
+      startsAt: at(date, '10:00'),
+      ...customer,
+      partySize: 3,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.appointment.party_size).toBe(3);
+
+    const stored = await query<{ party_size: number }>(
+      'select party_size from appointments where id = $1',
+      [result.appointment.id],
+    );
+    expect(stored[0].party_size).toBe(3);
+  });
+
+  it('survives a reschedule without dropping back to one', async () => {
+    const date = nextWorkingDate();
+    const booked = await createBooking({
+      businessId: IDS.business,
+      serviceId: IDS.service.gelManicure,
+      staffId: IDS.staff.sarah,
+      startsAt: at(date, '10:00'),
+      ...customer,
+      partySize: 4,
+    });
+    expect(booked.ok).toBe(true);
+    if (!booked.ok) return;
+
+    const moved = await rescheduleBooking({
+      appointmentId: booked.appointment.id,
+      startsAt: at(date, '11:00'),
+      actor: 'customer',
+    });
+    expect(moved.ok).toBe(true);
+    if (!moved.ok) return;
+    expect(moved.appointment.party_size).toBe(4);
+  });
+});

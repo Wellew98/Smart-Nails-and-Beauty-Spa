@@ -84,6 +84,8 @@ export interface Appointment {
   source: BookingSource;
   manage_token: string;
   price_cents_at_booking: number;
+  /** How many people this booking is for. 1 = a single booking. */
+  party_size: number;
   notes: string | null;
   created_at: Date;
   cancelled_at: Date | null;

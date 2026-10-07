@@ -23,6 +23,7 @@ interface Row {
   customerName: string;
   customerPhone: string;
   priceCents: number;
+  partySize: number;
   notes: string | null;
 }
 
@@ -155,7 +156,14 @@ export function TodayList({
                   <p className="leading-tight font-medium text-aubergine-900">
                     {appointment.customerName}
                   </p>
-                  <p className="mt-0.5 text-sm text-mauve-600">{appointment.serviceName}</p>
+                  <p className="mt-0.5 text-sm text-mauve-600">
+                    {appointment.serviceName}
+                    {appointment.partySize > 1 && (
+                      <span className="ml-2 rounded-full bg-lacquer-500/10 px-2 py-0.5 text-[0.7rem] font-medium text-lacquer-600">
+                        Party of {appointment.partySize}
+                      </span>
+                    )}
+                  </p>
                   <p className="mt-1 text-xs text-mauve-400">
                     {appointment.staffName}
                     {appointment.resourceName && ` · ${appointment.resourceName}`}

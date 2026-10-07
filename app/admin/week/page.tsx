@@ -132,6 +132,7 @@ export default async function WeekPage({
                                     </p>
                                     <p className="truncate text-[0.65rem] text-mauve-400">
                                       {appointment.service_name}
+                                      {appointment.party_size > 1 && ` · ×${appointment.party_size}`}
                                     </p>
                                   </div>
                                 </li>

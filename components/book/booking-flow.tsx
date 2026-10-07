@@ -37,6 +37,7 @@ interface Confirmation {
   staffName: string | null;
   startsAt: string;
   priceCents: number;
+  partySize: number;
 }
 
 /** One booking attempt gets one key; a new choice of slot starts a new attempt. */
@@ -46,10 +47,34 @@ function newIdempotencyKey(): string {
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+/**
+ * Contact details remembered on this device, so a returning guest does not
+ * retype them. This is the stand-in for Townhouse's login gate: no account,
+ * no password, nothing on the server — just the browser prefilling what it
+ * already knows. One key, one business; cleared with "Forget me".
+ */
+const BOOKER_KEY = 'smart.booker.v1';
+
+function loadBooker(): { name: string; phone: string; email: string } {
+  try {
+    const raw = localStorage.getItem(BOOKER_KEY);
+    if (!raw) return { name: '', phone: '', email: '' };
+    const parsed = JSON.parse(raw) as Partial<Record<'name' | 'phone' | 'email', unknown>>;
+    return {
+      name: typeof parsed.name === 'string' ? parsed.name : '',
+      phone: typeof parsed.phone === 'string' ? parsed.phone : '',
+      email: typeof parsed.email === 'string' ? parsed.email : '',
+    };
+  } catch {
+    return { name: '', phone: '', email: '' };
+  }
+}
+
 export function BookingFlow({
   services,
   days,
   preselectedServiceId,
+  preselectedCategory,
   minNoticeMinutes,
   businessName,
   businessPhone,
@@ -57,10 +82,15 @@ export function BookingFlow({
   services: BookableService[];
   days: BookableDay[];
   preselectedServiceId: string | null;
+  /** Homepage card deep-link (?category=Gel). Already validated server-side. */
+  preselectedCategory: string | null;
   minNoticeMinutes: number;
   businessName: string;
   businessPhone: string;
 }) {
+  const [guests, setGuests] = useState<number>(1);
+  const [groupEnquiry, setGroupEnquiry] = useState(false);
+
   const [serviceId, setServiceId] = useState<string | null>(
     services.some((s) => s.id === preselectedServiceId) ? preselectedServiceId : null,
   );
@@ -78,14 +108,22 @@ export function BookingFlow({
    * reach "Pick a day". Several reported it as the page being broken, which
    * is the right reading: nothing visibly responded to the tap.
    *
-   * Collapsing to a single row puts step 2 immediately under the thumb that
-   * just tapped, and the page goes from ~3000px to under one screen. Reopening
-   * is one tap on "Change".
+   * Collapsing to a single row puts the next step immediately under the thumb
+   * that just tapped, and the page goes from ~3000px to under one screen.
+   * Reopening is one tap on "Change".
    * -------------------------------------------------------------------------
    */
   const [listOpen, setListOpen] = useState(
     !services.some((s) => s.id === preselectedServiceId),
   );
+  /** Townhouse-style category filter. One category at a time, never the
+      whole menu at once: the full 43-treatment list in one scroll is a
+      firehose, not a choice. Defaults to the preselected treatment's own
+      category (so /prices deep-links land where the guest was looking),
+      otherwise the first category. */
+  const [category, setCategory] = useState<string | null>(null);
+  /** Which card's "Details" is expanded. One at a time. */
+  const [expandedService, setExpandedService] = useState<string | null>(null);
   /**
    * Scroll targets. Each carries `scroll-mt-24` in the markup.
    *
@@ -104,9 +142,7 @@ export function BookingFlow({
   const [slots, setSlots] = useState<Slot[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
+  const [booker, setBooker] = useState(loadBooker);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -131,6 +167,29 @@ export function BookingFlow({
     [services],
   );
 
+  const categories = useMemo(
+    () => serviceGroups.map(([heading]) => heading).filter((heading) => heading !== ''),
+    [serviceGroups],
+  );
+
+  const defaultCategory = useMemo(() => {
+    const pre = preselectedServiceId
+      ? services.find((s) => s.id === preselectedServiceId)
+      : undefined;
+    const label = pre?.description?.trim() ?? '';
+    const key = label.length > 0 && label.length <= 30 ? label : '';
+    if (key !== '' && categories.includes(key)) return key;
+    if (preselectedCategory && categories.includes(preselectedCategory)) return preselectedCategory;
+    return categories[0] ?? '';
+  }, [services, preselectedServiceId, preselectedCategory, categories]);
+
+  const activeCategory = category ?? defaultCategory;
+
+  const visibleGroups = useMemo(
+    () => serviceGroups.filter(([heading]) => heading === activeCategory),
+    [serviceGroups, activeCategory],
+  );
+
   /**
    * Name the therapist under each time only when the names actually differ.
    * With one therapist covering the whole day, repeating her name on twenty
@@ -140,6 +199,11 @@ export function BookingFlow({
     () => new Set(slots.map((s) => s.staffName).filter(Boolean)).size > 1,
     [slots],
   );
+
+  /** Townhouse's "Recommended times": the first few slots of the loaded day. */
+  const earliestSlots = useMemo(() => slots.slice(0, 3), [slots]);
+
+  const totalCents = (service?.priceCents ?? 0) * guests;
 
   // Which date the loaded slots describe. Without this we cannot tell "no
   // times on this day" apart from "not fetched yet".
@@ -204,6 +268,14 @@ export function BookingFlow({
     void loadSlots();
   }, [loadSlots]);
 
+  function chooseGuests(next: number) {
+    setGuests(next);
+    setGroupEnquiry(false);
+    // A different party is a different booking attempt: the same key replayed
+    // would hand back the earlier single booking.
+    idempotencyKey.current = newIdempotencyKey();
+  }
+
   function chooseService(nextId: string) {
     setServiceId(nextId);
     setStaffId('any');
@@ -225,6 +297,28 @@ export function BookingFlow({
     requestAnimationFrame(() => detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
 
+  function setBookerField(field: 'name' | 'phone' | 'email', value: string) {
+    setBooker((previous) => {
+      const next = { ...previous, [field]: value };
+      // Kept on this device only, so a returning guest does not retype.
+      try {
+        localStorage.setItem(BOOKER_KEY, JSON.stringify(next));
+      } catch {
+        /* private mode: the form still works, it just is not remembered */
+      }
+      return next;
+    });
+  }
+
+  function forgetBooker() {
+    setBooker({ name: '', phone: '', email: '' });
+    try {
+      localStorage.removeItem(BOOKER_KEY);
+    } catch {
+      /* nothing stored, nothing to clear */
+    }
+  }
+
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!service || !slot || submitting) return;
@@ -240,9 +334,10 @@ export function BookingFlow({
           service_id: service.id,
           staff_id: staffId,
           starts_at: slot.startsAt,
-          name,
-          phone,
-          email: email || undefined,
+          name: booker.name,
+          phone: booker.phone,
+          email: booker.email || undefined,
+          party_size: guests,
           idempotency_key: idempotencyKey.current,
         }),
       });
@@ -272,6 +367,7 @@ export function BookingFlow({
         staffName: data.appointment.staff_name,
         startsAt: data.appointment.starts_at,
         priceCents: data.appointment.price_cents,
+        partySize: data.appointment.party_size ?? guests,
       });
     } catch {
       setError('We could not reach the booking system. Check your connection and try again.');
@@ -296,9 +392,19 @@ export function BookingFlow({
 
         <dl className="mt-9 divide-y divide-blush-200 border-y border-blush-200">
           <Row term="Treatment" detail={confirmation.serviceName ?? service.name} />
+          {confirmation.partySize > 1 && (
+            <Row term="Party" detail={`${confirmation.partySize} guests · same treatment each`} />
+          )}
           <Row term="When" detail={longDateTime(confirmation.startsAt)} mono />
           <Row term="With" detail={confirmation.staffName ?? ''} />
-          <Row term="Price" detail={formatZar(confirmation.priceCents)} />
+          <Row
+            term="Price"
+            detail={
+              confirmation.partySize > 1
+                ? `${formatZar(confirmation.priceCents)} each · ${formatZar(confirmation.priceCents * confirmation.partySize)} total`
+                : formatZar(confirmation.priceCents)
+            }
+          />
         </dl>
 
         <p className="mt-6 text-sm leading-relaxed text-mauve-500">
@@ -328,12 +434,65 @@ export function BookingFlow({
   return (
     <div className="mx-auto max-w-2xl px-5 pt-12 pb-32 sm:pt-16">
       <p className="text-xs tracking-[0.22em] text-gilt-600 uppercase">Book</p>
-      <h1 className="font-display mt-3 text-[2.25rem] leading-[1.05] font-semibold text-aubergine-900 sm:text-5xl">
-        Four taps, then your details.
-      </h1>
 
-      {/* 1 — treatment */}
-      <Step index="1" title={service && !listOpen ? 'Your treatment' : 'Choose a treatment'}>
+      {/* 1 — guests */}
+      <Step index="1" title="How many are coming?">
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="How many people are coming?">
+          {[1, 2, 3, 4, 5, 6].map((count) => (
+            <button
+              key={count}
+              type="button"
+              role="radio"
+              aria-checked={guests === count && !groupEnquiry}
+              onClick={() => chooseGuests(count)}
+              className={`h-12 w-12 rounded-full border text-base transition-colors ${
+                guests === count && !groupEnquiry
+                  ? 'border-aubergine-900 bg-aubergine-900 text-blush-50'
+                  : 'border-blush-200 text-aubergine-900 hover:border-blush-300 hover:bg-blush-100'
+              }`}
+            >
+              {count}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => setGroupEnquiry(true)}
+            aria-pressed={groupEnquiry}
+            className={`rounded-full border px-4 text-sm transition-colors ${
+              groupEnquiry
+                ? 'border-aubergine-900 bg-aubergine-900 text-blush-50'
+                : 'border-blush-200 text-aubergine-900 hover:border-blush-300 hover:bg-blush-100'
+            }`}
+          >
+            7+
+          </button>
+        </div>
+        {groupEnquiry ? (
+          <div className="mt-4 rounded-xl border border-blush-200 bg-blush-100 px-5 py-5">
+            <p className="text-sm font-medium text-aubergine-900">Bringing seven or more?</p>
+            <p className="mt-1 text-sm text-mauve-500">
+              Big parties need the whole studio arranged around them, so those bookings happen by
+              phone and not here.
+            </p>
+            <a
+              href={`tel:${businessPhone}`}
+              className="mt-3 inline-block rounded-full bg-lacquer-500 px-5 py-2.5 text-sm font-medium text-blush-50 hover:bg-lacquer-600"
+            >
+              Call {formatPhoneForDisplay(businessPhone)}
+            </a>
+          </div>
+        ) : (
+          guests > 1 && (
+            <p className="mt-3 text-xs text-mauve-400">
+              Everyone in your party gets the same treatment, in the same visit.
+            </p>
+          )
+        )}
+      </Step>
+
+      {/* 2 — treatment */}
+      {!groupEnquiry && (
+      <Step index="2" title={service && !listOpen ? 'Your treatment' : 'Choose a treatment'}>
         {service && !listOpen ? (
           /* Chosen: one row, and a way back. */
           <div className="flex items-center gap-4 rounded-xl border border-aubergine-900 bg-blush-100 px-4 py-3.5">
@@ -344,6 +503,7 @@ export function BookingFlow({
               </span>
               <span className="tabular mt-0.5 block text-xs text-mauve-400">
                 {formatDuration(service.durationMinutes)} · {formatZar(service.priceCents)}
+                {guests > 1 && ` each · party of ${guests}`}
               </span>
             </span>
             <button
@@ -355,60 +515,93 @@ export function BookingFlow({
             </button>
           </div>
         ) : (
-          /* Open: grouped, because 43 treatments in one flat list is a
-             scroll rather than a choice. The headings are the studio's own,
-             carried on `description` — anything without a short category
-             falls into one unheaded group so nothing is ever hidden. */
-          <div className="space-y-6">
-            {serviceGroups.map(([heading, items]) => (
-              <div key={heading || 'all'}>
-                {heading && (
-                  <h3 className="mb-2 font-mono text-[0.65rem] tracking-[0.14em] text-gilt-600 uppercase">
-                    {heading}
-                  </h3>
-                )}
-                <ul className="space-y-2">
-                  {items.map((item) => {
-            const selected = item.id === serviceId;
-            return (
-              <li key={item.id}>
-                <button
-                  type="button"
-                  onClick={() => chooseService(item.id)}
-                  aria-pressed={selected}
-                  className={`flex w-full items-center gap-4 rounded-xl border px-4 py-3.5 text-left transition-colors ${
-                    selected
-                      ? 'border-aubergine-900 bg-blush-100'
-                      : 'border-blush-200 hover:border-blush-300 hover:bg-blush-100/60'
-                  }`}
-                >
-                  <Swatch serviceName={item.name} size="dot" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-[0.98rem] leading-tight text-aubergine-900">
-                      {item.name}
-                    </span>
-                    <span className="tabular mt-0.5 block text-xs text-mauve-400">
-                      {formatDuration(item.durationMinutes)}
-                    </span>
-                  </span>
-                  <span className="tabular text-sm font-medium text-aubergine-900">
-                    {formatZar(item.priceCents)}
-                  </span>
-                </button>
-              </li>
-            );
-                  })}
-                </ul>
+          /* Open: one category of tinted cards, Townhouse-style. The chips
+             switch categories; there is no "show everything" because the
+             whole 43-treatment menu in one scroll is a firehose. */
+          <div>
+            <div className="scrollbar-none -mx-5 overflow-x-auto px-5">
+              <div className="flex w-max gap-2 pb-1">
+                {categories.map((heading) => (
+                  <Chip
+                    key={heading}
+                    label={heading}
+                    selected={activeCategory === heading}
+                    onClick={() => setCategory(heading)}
+                  />
+                ))}
               </div>
-            ))}
+            </div>
+            <div className="mt-4 space-y-6">
+              {visibleGroups.map(([heading, items]) => (
+                <div key={heading || 'all'}>
+                  {heading && (
+                    <h3 className="mb-3 text-center text-[0.8rem] font-medium tracking-[0.18em] text-aubergine-900 uppercase">
+                      {heading}
+                    </h3>
+                  )}
+                  <ul className="grid gap-3 sm:grid-cols-2">
+                    {items.map((item) => {
+                      const selected = item.id === serviceId;
+                      const expanded = expandedService === item.id;
+                      return (
+                        <li
+                          key={item.id}
+                          className={`rounded-xl border px-5 pt-4 pb-3 transition-colors ${
+                            selected
+                              ? 'border-aubergine-900 bg-blush-200'
+                              : 'border-blush-200 bg-blush-100/70 hover:border-blush-300 hover:bg-blush-100'
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => chooseService(item.id)}
+                            aria-pressed={selected}
+                            className="block w-full text-left"
+                          >
+                            <span className="block text-[0.8rem] font-semibold tracking-[0.08em] text-aubergine-900 uppercase">
+                              {item.name}
+                            </span>
+                            <span className="tabular mt-1.5 block text-xs text-mauve-500">
+                              {formatDuration(item.durationMinutes)}
+                            </span>
+                          </button>
+                          <div className="mt-2.5 flex items-baseline justify-between gap-3">
+                            <button
+                              type="button"
+                              onClick={() => setExpandedService(expanded ? null : item.id)}
+                              aria-expanded={expanded}
+                              className="text-xs text-lacquer-500 underline underline-offset-4 hover:text-lacquer-600"
+                            >
+                              {expanded ? 'Hide details' : 'Learn more'}
+                            </button>
+                            <span className="tabular text-sm font-medium text-aubergine-900">
+                              {formatZar(item.priceCents)}
+                            </span>
+                          </div>
+                          {expanded && (
+                            <p className="pt-2 text-xs leading-relaxed text-mauve-500">
+                              {formatDuration(item.durationMinutes)} on the table
+                              {item.staff.length > 0 &&
+                                ` · with ${item.staff.map((member) => member.name).join(', ')}`}
+                              . Prices are per person.
+                            </p>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </Step>
+      )}
 
-      {/* 2 — therapist */}
-      {service && (
+      {/* 3 — therapist */}
+      {service && !groupEnquiry && (
         <div ref={therapistRef} className="scroll-mt-24">
-        <Step index="2" title="Anyone, or someone in particular?">
+        <Step index="3" title="Anyone, or someone in particular?">
           <div className="flex flex-wrap gap-2">
             <Chip label="Anyone" selected={staffId === 'any'} onClick={() => setStaffId('any')} />
             {service.staff.map((member) => (
@@ -429,9 +622,9 @@ export function BookingFlow({
         </div>
       )}
 
-      {/* 3 — day */}
-      {service && (
-        <Step index="3" title="Pick a day">
+      {/* 4 — day */}
+      {service && !groupEnquiry && (
+        <Step index="4" title="Pick a day">
           <div className="scrollbar-none -mx-5 overflow-x-auto px-5">
             <div className="flex w-max gap-2">
               {days.map((day) => {
@@ -471,10 +664,10 @@ export function BookingFlow({
         </Step>
       )}
 
-      {/* 4 — time */}
-      {service && date && (
+      {/* 5 — time */}
+      {service && date && !groupEnquiry && (
         <div ref={slotsRef} className="scroll-mt-24">
-          <Step index="4" title="Pick a time">
+          <Step index="5" title="Pick a time">
             {loadingSlots ? (
               <p className="py-6 text-sm text-mauve-400">Checking what&rsquo;s free…</p>
             ) : slots.length === 0 ? (
@@ -486,56 +679,101 @@ export function BookingFlow({
                 </p>
               </div>
             ) : (
-              <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                {slots.map((option) => {
-                  const selected = slot?.startsAt === option.startsAt;
-                  return (
-                    <li key={option.startsAt}>
-                      <button
-                        type="button"
-                        onClick={() => chooseSlot(option)}
-                        aria-pressed={selected}
-                        className={`w-full rounded-xl border px-2 py-3 transition-colors ${
-                          selected
-                            ? 'border-aubergine-900 bg-aubergine-900 text-blush-50'
-                            : 'border-blush-200 text-aubergine-900 hover:border-blush-300 hover:bg-blush-100'
-                        }`}
-                      >
-                        <span className="tabular block font-mono text-[0.95rem] leading-none">
+              <>
+                {earliestSlots.length > 0 && (
+                  <div className="mb-4">
+                    <p className="mb-2 text-[0.65rem] tracking-[0.14em] text-gilt-600 uppercase">
+                      Earliest available
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {earliestSlots.map((option) => (
+                        <button
+                          key={option.startsAt}
+                          type="button"
+                          onClick={() => chooseSlot(option)}
+                          className={`tabular rounded-full border px-4 py-2 font-mono text-sm transition-colors ${
+                            slot?.startsAt === option.startsAt
+                              ? 'border-aubergine-900 bg-aubergine-900 text-blush-50'
+                              : 'border-lacquer-500/40 text-lacquer-600 hover:bg-lacquer-500/10'
+                          }`}
+                        >
                           {option.label}
-                        </span>
-                        {showStaffNames && option.staffName && (
-                          <span className="mt-1 block text-[0.65rem] opacity-70">
-                            {option.staffName}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  {slots.map((option) => {
+                    const selected = slot?.startsAt === option.startsAt;
+                    return (
+                      <li key={option.startsAt}>
+                        <button
+                          type="button"
+                          onClick={() => chooseSlot(option)}
+                          aria-pressed={selected}
+                          className={`w-full rounded-xl border px-2 py-3 transition-colors ${
+                            selected
+                              ? 'border-aubergine-900 bg-aubergine-900 text-blush-50'
+                              : 'border-blush-200 text-aubergine-900 hover:border-blush-300 hover:bg-blush-100'
+                          }`}
+                        >
+                          <span className="tabular block font-mono text-[0.95rem] leading-none">
+                            {option.label}
                           </span>
-                        )}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
+                          {showStaffNames && option.staffName && (
+                            <span className="mt-1 block text-[0.65rem] opacity-70">
+                              {option.staffName}
+                            </span>
+                          )}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </>
             )}
           </Step>
         </div>
       )}
 
-      {/* 5 — details */}
-      {service && slot && (
+      {/* 6 — details. The review first: Townhouse confirms WHAT is being
+          booked before asking WHO is booking it, so a thumb never types a
+          phone number into the wrong booking. */}
+      {service && slot && !groupEnquiry && (
         <div ref={detailsRef} className="scroll-mt-24">
-          <Step index="5" title="Your details">
+          <Step index="6" title="Check it, then your details">
+            <dl className="mb-6 divide-y divide-blush-200 rounded-xl border border-blush-200 bg-white px-4">
+              <Row term="Treatment" detail={service.name} />
+              <Row
+                term="Party"
+                detail={guests > 1 ? `${guests} guests · same treatment each` : 'Just me'}
+              />
+              <Row term="When" detail={`${shortDay(date)} · ${slot.label}`} mono />
+              <Row term="With" detail={slot.staffName || 'Anyone available'} />
+              <Row
+                term="Price"
+                detail={
+                  guests > 1
+                    ? `${formatZar(service.priceCents)} each · ${formatZar(totalCents)} total`
+                    : formatZar(service.priceCents)
+                }
+              />
+            </dl>
+
             <form onSubmit={submit} className="space-y-4">
               <Field
                 label="Name"
-                value={name}
-                onChange={setName}
+                value={booker.name}
+                onChange={(value) => setBookerField('name', value)}
                 autoComplete="name"
                 required
                 placeholder="Thandi Mahlangu"
               />
               <Field
                 label="Mobile number"
-                value={phone}
-                onChange={setPhone}
+                value={booker.phone}
+                onChange={(value) => setBookerField('phone', value)}
                 type="tel"
                 autoComplete="tel"
                 required
@@ -545,13 +783,24 @@ export function BookingFlow({
               />
               <Field
                 label="Email"
-                value={email}
-                onChange={setEmail}
+                value={booker.email}
+                onChange={(value) => setBookerField('email', value)}
                 type="email"
                 autoComplete="email"
                 placeholder="you@example.com"
                 hint="Optional, for an emailed confirmation you can keep."
               />
+
+              <p className="text-xs leading-relaxed text-mauve-400">
+                Kept on this device only, so next time this form fills itself in.{' '}
+                <button
+                  type="button"
+                  onClick={forgetBooker}
+                  className="underline underline-offset-4 hover:text-mauve-500"
+                >
+                  Forget me
+                </button>
+              </p>
 
               {error && (
                 <p role="alert" className="rounded-xl bg-lacquer-500/10 px-4 py-3 text-sm text-lacquer-600">
@@ -582,7 +831,11 @@ export function BookingFlow({
                 disabled={submitting}
                 className="w-full rounded-full bg-lacquer-500 px-6 py-4 text-base font-medium text-blush-50 transition-colors hover:bg-lacquer-600 disabled:opacity-60"
               >
-                {submitting ? 'Confirming…' : `Confirm · ${formatZar(service.priceCents)}`}
+                {submitting
+                  ? 'Confirming…'
+                  : guests > 1
+                    ? `Confirm · ${formatZar(totalCents)} total`
+                    : `Confirm · ${formatZar(service.priceCents)}`}
               </button>
 
               <p className="text-center text-xs text-mauve-400">
@@ -612,9 +865,10 @@ export function BookingFlow({
               {slot && (
                 <span className="tabular font-mono text-mauve-500"> · {slot.label}</span>
               )}
+              {guests > 1 && <span className="text-mauve-500"> · ×{guests}</span>}
             </p>
             <p className="tabular text-sm font-medium text-aubergine-900">
-              {formatZar(service.priceCents)}
+              {guests > 1 ? formatZar(totalCents) : formatZar(service.priceCents)}
             </p>
           </div>
         </div>
@@ -694,6 +948,16 @@ function Row({ term, detail, mono = false }: { term: string; detail: string; mon
       </dd>
     </div>
   );
+}
+
+function shortDay(date: string | null): string {
+  if (!date) return '';
+  return new Intl.DateTimeFormat('en-ZA', {
+    timeZone: 'Africa/Johannesburg',
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  }).format(new Date(`${date}T12:00:00Z`));
 }
 
 function longDateTime(iso: string): string {

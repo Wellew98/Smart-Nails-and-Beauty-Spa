@@ -93,11 +93,20 @@ export const SITE = {
 } as const;
 
 export const NAV = [
-  { href: '/services', label: 'Treatments' },
-  { href: '/about', label: 'About' },
+  { href: '/#services', label: 'Services' },
+  { href: '/prices', label: 'Prices' },
   { href: '/gallery', label: 'Gallery' },
+  { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ] as const;
+
+/**
+ * The studio's Google review link, supplied by the owner (GBP session notes).
+ * Used by the homepage review-invite section. When real reviews land and
+ * lib/reviews.ts gains the owner's screenshots, that section takes over and
+ * this link stays as its "read them all" target.
+ */
+export const REVIEW_URL = 'https://g.page/r/CTOzepJCQc2iEBM/review';
 
 /**
  * Shown at the foot of /privacy. Bump it whenever that page's substance

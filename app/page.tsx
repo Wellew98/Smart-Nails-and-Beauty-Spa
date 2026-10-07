@@ -1,322 +1,373 @@
-import Image from 'next/image';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { BookButton } from '@/components/book-button';
-import { SmartMark } from '@/components/smart-mark';
-import { ReviewScreenshot } from '@/components/review-screenshot';
-import { Swatch } from '@/components/swatch';
+import { PromoPopup } from '@/components/promo-popup';
 import { getActiveServices, getBusiness } from '@/lib/public-data';
-import { DESTINATION_LACQUERS } from '@/lib/palette';
-import { formatPhoneForDisplay } from '@/lib/phone';
-import { NAIL_PHOTOS, STUDIO_PHOTO } from '@/lib/photos';
-import { REVIEWS } from '@/lib/reviews';
-import { SITE } from '@/lib/site';
+import { findSpecialPackageId } from '@/lib/flyer-prices';
+import { REVIEW_URL } from '@/lib/site';
 
+export const metadata: Metadata = {
+  title: 'Smart Nails and Beauty Spa | Beauty Begins Here – Glenanda, Johannesburg South',
+  description:
+    'Smart Nails and Beauty Spa, 75 Amanda Avenue, Glenanda, Johannesburg South. Nails, Gel, Pedicure, Massage, Facials, Waxing, Lashes and Men services. Special Package R500. Book online in under a minute. Mon–Sat 8am–8pm, Sun 9am–4pm.',
+};
+
+const SERVICE_CARDS = [
+  {
+    name: 'Nails',
+    line: 'Acrylic, tips, sculpture',
+    from: 'from R100',
+    category: 'Nails',
+    img: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=800&q=80&auto=format&fit=crop',
+    alt: 'Pink gel manicure close-up',
+  },
+  {
+    name: 'Gel',
+    line: 'Hands, feet, Bio Sculpture',
+    from: 'from R200',
+    category: 'Gel',
+    img: 'https://images.unsplash.com/photo-1610992015732-2449b76344bc?w=800&q=80&auto=format&fit=crop',
+    alt: 'Gel polish colour selection',
+  },
+  {
+    name: 'Pedicure',
+    line: 'Gel, normal, paraffin',
+    from: 'from R100',
+    category: 'Pedicure',
+    img: 'https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?w=800&q=80&auto=format&fit=crop',
+    alt: 'Feet soaking in a pedicure foot bath with orchids',
+  },
+  {
+    name: 'Massage',
+    line: 'Swedish, sport, hot stone',
+    from: 'from R200',
+    category: 'Massage',
+    img: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=800&q=80&auto=format&fit=crop',
+    alt: 'Full body massage for tension release',
+  },
+  {
+    name: 'Facials',
+    line: 'Hydrating, deep cleanse',
+    from: 'from R300',
+    category: 'Facials',
+    img: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&q=80&auto=format&fit=crop',
+    alt: 'Hydrating facial treatment',
+  },
+  {
+    name: 'Waxing',
+    line: 'Face, body, R700 offer',
+    from: 'from R100',
+    category: 'Women waxing',
+    img: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=800&q=80&auto=format&fit=crop',
+    alt: 'Professional waxing and skincare products',
+  },
+  {
+    name: 'Lashes',
+    line: 'Classic, volume, fill',
+    from: 'from R100',
+    category: 'Eyelash extensions',
+    img: 'https://images.unsplash.com/photo-1589710751893-f9a6770ad71b?w=800&q=80&auto=format&fit=crop',
+    alt: 'Eyelash extensions being applied with tweezers',
+  },
+  {
+    name: 'Men',
+    line: 'Mani, pedi, buff & shine',
+    from: 'from R150',
+    category: 'Men services',
+    img: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800&q=80&auto=format&fit=crop',
+    alt: 'Men grooming barbershop service',
+  },
+] as const;
+
+const GALLERY = [
+  {
+    img: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&q=80&auto=format&fit=crop',
+    alt: 'Warm oil spa massage ritual',
+    caption: 'Spa ritual — warm oils & massage',
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=800&q=80&auto=format&fit=crop',
+    alt: 'Beautiful Black woman natural glow',
+    caption: 'Glow — beauty for our market',
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=800&q=80&auto=format&fit=crop',
+    alt: 'Pink gel nails manicure finish',
+    caption: 'Nails — pink gel finish',
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1619607146034-5a05296c8f9a?w=800&q=80&auto=format&fit=crop',
+    alt: 'Wall of nail polish bottles on gold shelves in a salon',
+    caption: 'Colour wall — the polish range',
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&q=80&auto=format&fit=crop',
+    alt: 'Professional beauty products and brushes',
+    caption: 'Artistry — pro products & tools',
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800&q=80&auto=format&fit=crop',
+    alt: 'Makeup beauty close-up',
+    caption: 'Confidence — finished look',
+  },
+] as const;
+
+/**
+ * Flyer homepage, exactly like the supplied index.html except the price
+ * list lives on its own page: the "Transparent pricing / Full price
+ * list" section is replaced here by a short pointer to /prices.
+ *
+ * Booking is online-only by owner decision, so every booking button points
+ * at /book (with a preselected service where one fits) and never WhatsApp.
+ */
 export default async function HomePage() {
   const business = (await getBusiness())!;
-  const allServices = await getActiveServices(business.id);
-
-  /**
-   * The four doors off the homepage, in the order a first-time visitor wants
-   * them: what it costs, what it looks like, who you are dealing with, how to
-   * reach them. Booking is not among them on purpose — it is the hero's button
-   * and the button in the header, and it should not queue behind four
-   * alternatives.
-   *
-   * Each is a painted nail in its own shade. The treatment count is read from
-   * the database rather than written down, so the door cannot promise a number
-   * the price list does not have.
-   */
-  const destinations = [
-    {
-      href: '/services',
-      label: 'Treatments',
-      line: `All ${allServices.length}, with prices`,
-      lacquer: DESTINATION_LACQUERS.treatments,
-    },
-    {
-      href: '/gallery',
-      label: 'Gallery',
-      line: SITE.gallery.lead,
-      lacquer: DESTINATION_LACQUERS.gallery,
-    },
-    {
-      href: '/about',
-      label: 'About',
-      line: 'The studio in Glenanda',
-      lacquer: DESTINATION_LACQUERS.about,
-    },
-    {
-      href: '/contact',
-      label: 'Contact',
-      line: 'Where to find us',
-      lacquer: DESTINATION_LACQUERS.contact,
-    },
-  ];
+  const services = await getActiveServices(business.id);
+  const specialId = findSpecialPackageId(services);
 
   return (
     <>
-      {/* ---------------- hero ----------------
-          Built from the studio's own shopfront banner: the mark, then SCHEDULE
-          AN APPOINTMENT in heavy caps, a rose line carrying the hours, and the
-          phone number under "get in touch". A customer who has walked past
-           75 Amanda Avenue should recognise this page as the same business.
-
-          What the banner cannot do is take the booking, so the headline
-          finishes in the site's own serif — "in under a minute" — and the
-          button sits directly beneath it.
-
-          The blush wash and the photograph bleeding in from the right are the
-          banner's too.
-
-          THE PHOTOGRAPH IS ON PHONES AS WELL NOW. It used to be desktop-only,
-          on the rule that an image in the hero pushes the button below the fold
-          on a phone. That rule is about images IN THE FLOW; this one is
-          absolutely positioned behind the text and adds no height at all, so
-          the button has not moved. It is narrower, dimmer and faded harder
-          there so the copy still reads over it. ---------------------------- */}
-      <section className="relative isolate overflow-hidden border-b border-gilt-200/70 bg-gradient-to-b from-blush-200 via-blush-100 to-blush-50">
-        <div
-          aria-hidden="true"
-          className="photo-fade pointer-events-none absolute inset-y-0 right-0 w-[58%] sm:w-[50%] lg:w-[44%]"
-        >
-          <Image
-            src={STUDIO_PHOTO.src}
-            alt=""
-            fill
-            sizes="(min-width: 1024px) 44vw, (min-width: 640px) 50vw, 58vw"
-            priority
-            className="object-cover object-[60%_center] opacity-40 sm:opacity-50 lg:opacity-60"
-          />
-        </div>
-
-        <div className="relative mx-auto max-w-5xl px-5 pt-12 pb-14 sm:pt-16 sm:pb-20">
-          {/* The only logo on the page now that the header has given it up, so
-              it is bigger than it was and stands on its own line rather than
-              being tucked under the header. Left-aligned on the same edge as
-              the eyebrow, the headline and the button: it is the first item in
-              that column, not a centred crest floating above it. */}
-          <SmartMark
-            title={business.name}
-            className="h-24 w-24 rounded-full sm:h-32 sm:w-32"
-          />
-
-          <p className="mt-8 text-[0.7rem] tracking-[0.28em] text-gilt-600 uppercase sm:mt-10">
-            {SITE.heroPlace}
-          </p>
-
-          {/* The line break is a max-width in ch on the CAPS span, not on the
-              h1: "APPOINTMENT" is wider than any sensible measure at this size,
-              so a limit on the h1 would be overridden by that one word and then
-              inherited by the serif line, which would wrap for no reason. */}
-          <h1 className="mt-3 max-w-xl">
-            <span className="block max-w-[12ch] text-[2.3rem] leading-[0.94] font-extrabold tracking-[-0.015em] text-aubergine-900 uppercase sm:text-[3.75rem]">
-              {SITE.heroLine}
-            </span>
-            <span className="font-display mt-3 block text-2xl leading-tight font-semibold text-lacquer-500 sm:text-4xl">
-              {SITE.heroPromise}
-            </span>
-          </h1>
-
-          <p className="mt-7 max-w-md text-[1.05rem] leading-relaxed text-mauve-500">
-            {SITE.heroSupport}
-          </p>
-
-          <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
-            <BookButton />
-            <p className="text-sm">
-              <span className="block text-[0.68rem] tracking-[0.2em] text-gilt-600 uppercase">
-                {SITE.heroContact}
-              </span>
-              <a
-                href={`tel:${business.phone}`}
-                className="mt-1 block font-medium text-aubergine-900 underline-offset-4 hover:text-lacquer-500 hover:underline"
-              >
-                {formatPhoneForDisplay(business.phone)}
-              </a>
+      {/* HERO */}
+      <section className="hero">
+        <div className="hero-inner">
+          <div className="hero-copy">
+            <div className="sun">
+              <img
+                className="hero-logo"
+                src="/logo.webp"
+                alt="Smart Nails and Beauty Spa logo"
+                width="220"
+                height="220"
+              />
+            </div>
+            <p className="fly-beauty">BEAUTY</p>
+            <p className="fly-script">
+              begins here<span className="heart">♥</span>
             </p>
+            <p className="fly-rules">
+              <span>RELAX</span>
+              <i>•</i>
+              <span>REJUVENATE</span>
+              <i>•</i>
+              <span>GLOW</span>
+            </p>
+            <p className="lede">
+              Nails, Pedicure, Massage, Facials, Waxing, Lashes &amp; more — real prices on the
+              prices page, booking in seconds. <strong>BEAUTY. CONFIDENCE. YOU.</strong>
+            </p>
+            <div className="hero-btns">
+              <Link className="btn btn-pink" href="/book">
+                Book online
+              </Link>
+              <Link className="btn btn-ghost" href="/prices">
+                View Prices
+              </Link>
+            </div>
+            <ul className="trust">
+              <li>✓ Appointments + walk-ins</li>
+              <li>✓ Men services available</li>
+            </ul>
+          </div>
+          <div className="hero-card">
+            <Link
+              className="hero-photo"
+              href="/book"
+              aria-label="Book your appointment today online"
+            >
+              <svg
+                className="hero-curve"
+                viewBox="0 0 120 1020"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path d="M0 0 H56 C10 240 110 480 60 720 C36 850 28 940 12 1020 H0 Z" fill="#FDE7EF" />
+                <path
+                  d="M56 -10 C10 240 110 480 60 720 C36 850 28 940 12 1030"
+                  fill="none"
+                  stroke="#F06292"
+                  strokeWidth="16"
+                />
+                <path
+                  d="M64 -10 C18 240 118 480 68 720 C44 850 36 940 20 1030"
+                  fill="none"
+                  stroke="#141114"
+                  strokeWidth="7"
+                />
+              </svg>
+              <img
+                src="/hero-hands.webp"
+                alt="Pink almond manicure with orchid, candle and spa stones"
+              />
+              <span className="badge-cover" aria-hidden="true">
+                <span className="b-heart">♥</span>
+                <span className="b-top">BOOK YOUR</span>
+                <span className="b-mid">APPOINTMENT</span>
+                <span className="b-bot">Today!</span>
+              </span>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ---------------- the four doors ----------------
-          The homepage used to carry the whole site: a strip of ten treatments,
-          six more with prices, the studio photograph, six gallery shots and a
-          closing panel. Everything it offered lived on a page of its own as
-          well, so the homepage was a duplicate of the site with a hero on top,
-          and the one thing it is for — getting a thumb onto "Book a treatment"
-          — was competing with about thirty other links.
+      <PromoPopup serviceId={specialId} />
 
-          It is now the hero and four doors, each one a painted nail in its own
-          shade: a nail bar's characteristic object is its colour range, the
-          rest of the site is already built out of it, and four of them side by
-          side read as a range rather than as four icons.
-          ------------------------------------------------------------------ */}
-      <nav aria-labelledby="explore-heading" className="mx-auto mt-14 max-w-5xl px-5 sm:mt-20">
-        <h2 id="explore-heading" className="text-[0.7rem] tracking-[0.28em] text-gilt-600 uppercase">
-          Have a look around
-        </h2>
-
-        <ul className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-4 sm:gap-5">
-          {destinations.map((destination) => (
-            <li key={destination.href}>
+      {/* SERVICES GRID */}
+      <section className="section" id="services">
+        <div className="wrap">
+          <p className="eyebrow">What we do</p>
+          <h2>Services</h2>
+          <div className="grid8">
+            {SERVICE_CARDS.map((card) => (
               <Link
-                href={destination.href}
-                className="group flex h-full items-center gap-4 rounded-2xl border border-gilt-200/70 bg-blush-100/60 p-4 transition-colors hover:bg-blush-100 sm:flex-col sm:items-start sm:gap-6 sm:p-6"
-              >
-                <Swatch
-                  serviceName={destination.label}
-                  lacquer={destination.lacquer}
-                  size="tile"
-                  className="transition-transform duration-300 group-hover:-translate-y-1"
-                />
-
-                <span className="min-w-0 flex-1 sm:flex-none">
-                  <span className="font-display block text-lg leading-tight font-semibold text-aubergine-900">
-                    {destination.label}
-                  </span>
-                  <span className="mt-1.5 block text-sm leading-snug text-mauve-500">
-                    {destination.line}
-                  </span>
-                </span>
-
-                {/* Only on a phone, where the row reads as a list item. In the
-                    desktop grid the whole tile is obviously the target. */}
-                <span
-                  aria-hidden="true"
-                  className="text-mauve-400 transition-transform group-hover:translate-x-0.5 sm:hidden"
-                >
-                  →
-                </span>
+                className="svc"
+                key={card.name}
+                href={`/book?category=${encodeURIComponent(card.category)}`}
+              >                <img src={card.img} alt={card.alt} loading="lazy" />
+                <h3>{card.name}</h3>
+                <p>{card.line}</p>
+                <span>{card.from} →</span>
               </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      {/* ---------------- two from the gallery ----------------
-          The first two photographs on /gallery, in the order that page shows
-          them, so the homepage cannot end up displaying different "best" work
-          than the gallery leads with — reorder lib/photos.ts and both follow.
-
-          Both are among the five carrying the studio's own brand card in
-          frame, so they are demonstrably its work. They are still not
-          captioned as such: lib/photos.ts sets the rule and only the alt text,
-          which describes the picture rather than claiming it, goes on the
-          page.
-
-          One is landscape and one portrait. They are cropped to a shared 4:5
-          so the pair reads as a pair rather than as two loose images, and the
-          pair is held to a narrower measure than the doors above it: at the
-          full width of the page each one came out nearly a screen tall, which
-          made the closing note the biggest thing on a page whose whole point
-          is now restraint. ------------------------------------------------- */}
-      <section aria-labelledby="work-heading" className="mx-auto mt-14 max-w-5xl px-5 sm:mt-20">
-        <h2 id="work-heading" className="sr-only">
-          From the studio
-        </h2>
-
-        <ul className="grid grid-cols-2 gap-3 sm:max-w-3xl sm:gap-5">
-          {NAIL_PHOTOS.slice(0, 2).map((photo) => (
-            <li key={photo.src}>
-              <Link
-                href="/gallery"
-                className="group block overflow-hidden rounded-2xl bg-blush-100"
-              >
-                <Image
-                  src={photo.src}
-                  alt={photo.alt}
-                  width={photo.width}
-                  height={photo.height}
-                  sizes="(min-width: 640px) 23rem, 50vw"
-                  className="aspect-[4/5] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* ---------------- straight off the Google listing ----------------
-          Four reviews, as the owner's own screenshots of Google's review
-          panel, and the last thing on the page: the hero asks for the booking,
-          the doors and the two photographs answer "what is this place", and
-          this answers "does anyone rate it", which is the question a
-          first-time visitor is actually holding when their thumb is over the
-          button.
-
-          THEY ARE PICTURES AND THEY STAY PICTURES. An earlier version of this
-          section transcribed the four reviews and rebuilt them as cards in the
-          site's own type, with the rating drawn as painted nails. It looked
-          better and it was worth nothing: our markup, in our fonts, saying
-          nice things about us, is a claim rather than evidence, and any
-          business can type it. Google's stars, Google's layout and the
-          reviewers' own profile photographs cannot be faked by this site,
-          which is precisely why they persuade. See lib/reviews.ts before
-          undoing this again.
-
-          IT IS A FULL-WIDTH BAND ON PURPOSE. Everything between the hero and
-          here is contained to max-w-5xl on the body ground, so a fourth
-          contained block would have read as more of the same and the page
-          would have simply stopped. Tinting the last one and ruling it top and
-          bottom bookends the page against the hero band. The footer is blush
-          too, so the band is the lighter blush-100/70 and the footer's own
-          mt-24 keeps six rems of body ground between them.
-
-          ONE COLUMN, AND HELD TO max-w-3xl. This was built as two columns
-          first and that was wrong. A screenshot is a picture of text, so the
-          only thing that matters is the scale it ends up drawn at: two columns
-          puts each capture at roughly 470px, and Google's review type inside an
-          800px-wide capture then lands near eight pixels, which nobody can
-          read. Stacked at 768px it renders at or near native, and a capture
-          taken on a retina screen simply downsamples into it and comes out
-          sharper. Four clippings in a column also read as what they are, a
-          stack of evidence, rather than as a tidy grid of tiles.
-
-          If the files are ever replaced, check this width against the new
-          ones: everything here follows from how wide the captures actually
-          are, and nothing else in the section does.
-
-          WHAT THIS SECTION MAY NOT DO is add the four of them up. They are
-          five-star reviews off a profile averaging 3.7, so the copy counts
-          nothing and the link to the listing is not decorative.
-          ------------------------------------------------------------------ */}
-      {/* Hidden until Smart has its own review screenshots (lib/reviews.ts).
-          Grace's reviews must never render here. */}
-      {REVIEWS.length > 0 && (
-      <section
-        aria-labelledby="reviews-heading"
-        className="mt-14 border-y border-gilt-200/70 bg-blush-100/70 sm:mt-20"
-      >
-        <div className="mx-auto max-w-5xl px-5 py-12 sm:py-16">
-          <h2
-            id="reviews-heading"
-            className="text-[0.7rem] tracking-[0.28em] text-gilt-600 uppercase"
-          >
-            {SITE.reviews.heading}
-          </h2>
-
-          <ul className="mt-7 grid max-w-3xl gap-4 sm:mt-9 sm:gap-5">
-            {REVIEWS.map((review) => (
-              <li key={review.screenshot}>
-                <ReviewScreenshot review={review} />
-              </li>
             ))}
-          </ul>
-
-          <p className="mt-9 text-sm leading-relaxed text-mauve-500">
-            {SITE.reviews.note}{' '}
-            {business.google_maps_url && (
-              <a
-                href={business.google_maps_url}
-                className="text-lacquer-500 underline underline-offset-4 hover:text-lacquer-600"
-              >
-                {SITE.reviews.link}
-              </a>
-            )}
-          </p>
+          </div>
         </div>
       </section>
-      )}
+
+      {/* PRICES POINTER — the full list lives on its own page */}
+      <section className="section prices" id="prices-teaser">
+        <div className="wrap">
+          <p className="eyebrow">Transparent pricing</p>
+          <h2>Full price list</h2>
+          <p className="sub">
+            Price-only, exactly as our flyer — on its own page. Tap any item to book it online.
+          </p>
+          <div className="offer-btns">
+            <Link
+              className="btn btn-pink"
+              href={specialId ? `/book?service=${specialId}` : '/book'}
+            >
+              Book the R500 special
+            </Link>
+            <Link className="btn btn-dark" href="/prices">
+              View all prices
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* GALLERY */}
+      <section className="section" id="gallery">
+        <div className="wrap">
+          <p className="eyebrow">Inspiration</p>
+          <h2>Feel the experience</h2>
+          <p className="sub">
+            Nails, massage, facials and more — a taste of the range while our own studio
+            photographs are on the way.
+          </p>
+          <div className="gal">
+            {GALLERY.map((shot) => (
+              <figure key={shot.img}>
+                <img src={shot.img} alt={shot.alt} loading="lazy" />
+                <figcaption>{shot.caption}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* REVIEWS — honest version: the listing is new and has no reviews yet,
+          so there is nothing to quote and no rating to show. What the section
+          can truthfully do is ask. When the owner's review screenshots land in
+          lib/reviews.ts, this becomes the screenshot stack with REVIEW_URL as
+          its "read them all" target. */}
+      <section className="section tint" id="reviews">
+        <div className="wrap narrow">
+          <p className="eyebrow">Reviews</p>
+          <h2>Been to Smart Nails?</h2>
+          <p className="sub">
+            We are new on Google, and every review helps a Glenanda neighbour book with
+            confidence. It takes about a minute.
+          </p>
+          <div className="offer-btns">
+            <a className="btn btn-pink" href={REVIEW_URL} target="_blank" rel="noopener">
+              Leave a Google review
+            </a>
+            <Link className="btn btn-dark" href="/book">
+              Book your next visit
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="section" id="faq">
+        <div className="wrap narrow">
+          <p className="eyebrow">Good to know</p>
+          <h2>FAQs</h2>
+          <details open>
+            <summary>Do I need an appointment?</summary>
+            <p>
+              Appointments may be required, but walk-ins are welcome when space allows.{' '}
+              <Link href="/book">Book online</Link> to secure your slot in seconds.
+            </p>
+          </details>
+          <details>
+            <summary>Where are you?</summary>
+            <p>75 Amanda Avenue, Glenanda, Johannesburg South. See map below.</p>
+          </details>
+          <details>
+            <summary>What are your hours?</summary>
+            <p>Monday–Saturday 8am–8pm, Sunday 9am–4pm.</p>
+          </details>
+          <details>
+            <summary>Do you do men&apos;s services?</summary>
+            <p>Yes — Full Pedicure R250, Full Manicure R250, Buff &amp; Shine R150.</p>
+          </details>
+          <details>
+            <summary>How do I book the R500 Special?</summary>
+            <p>
+              Open <Link href="/prices">the price list</Link>, tap the R500 Special Package and
+              confirm your time online. Just that.
+            </p>
+          </details>
+        </div>
+      </section>
+
+      {/* VISIT */}
+      <section className="section tint" id="visit">
+        <div className="wrap visit-grid">
+          <div>
+            <p className="eyebrow">Visit us</p>
+            <h2>75 Amanda Avenue, Glenanda</h2>
+            <p>Johannesburg South • Mon–Sat 8–8 • Sun 9–4</p>
+            <div className="visit-btns">
+              <Link className="btn btn-pink" href="/book">
+                Book online
+              </Link>
+              <a className="btn btn-dark" href="tel:+27810444429">
+                Call 081 044 4429
+              </a>
+              <a
+                className="btn btn-ghost"
+                href="https://www.google.com/maps/search/?api=1&query=75+Amanda+Avenue+Glenanda+Johannesburg+South"
+                target="_blank"
+                rel="noopener"
+              >
+                Directions
+              </a>
+            </div>
+          </div>
+          <iframe
+            title="Map — Smart Nails 75 Amanda Ave Glenanda"
+            src="https://www.google.com/maps?q=75%20Amanda%20Avenue%20Glenanda%20Johannesburg%20South&output=embed"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
+      </section>
+
+      <Link className="float" href="/book" aria-label="Book online">
+        Book
+      </Link>
     </>
   );
 }

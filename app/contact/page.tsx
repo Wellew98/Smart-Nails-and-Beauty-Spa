@@ -102,6 +102,29 @@ export default async function ContactPage() {
           </div>
         </div>
       </div>
+
+      {business.address && (
+        <div className="mt-16">
+          <h2 className="text-xs tracking-[0.18em] text-gilt-600 uppercase">Getting here</h2>
+          <div className="mt-4 overflow-hidden rounded-2xl border border-blush-200">
+            <iframe
+              title={`Map to ${business.name}`}
+              src={`https://www.google.com/maps?q=${encodeURIComponent(business.address)}&output=embed`}
+              className="h-80 w-full border-0 sm:h-96"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+          <a
+            href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(business.address)}`}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-5 inline-flex items-center justify-center rounded-full border border-aubergine-900/25 px-7 py-3.5 text-base font-medium tracking-tight text-aubergine-900 transition-colors hover:border-aubergine-900/60 hover:bg-blush-100"
+          >
+            Get directions
+          </a>
+        </div>
+      )}
     </div>
   );
 }

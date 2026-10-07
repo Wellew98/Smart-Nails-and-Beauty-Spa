@@ -23,6 +23,9 @@ const bodySchema = z.object({
   name: z.string().trim().min(1, 'Please tell us your name').max(120),
   phone: z.string().trim().min(1, 'We need a phone number'),
   email: z.union([z.email(), z.literal('')]).optional(),
+  // Online parties are 1–6 sharing one slot and one treatment. Groups of 7+
+  // book by phone, so the flow never sends more than 6.
+  party_size: z.int().min(1).max(6).optional(),
   notes: z.string().trim().max(500).optional(),
   idempotency_key: z.string().min(8).max(200),
 });
@@ -50,7 +53,7 @@ export async function POST(request: Request) {
   const business = await getBusiness();
   if (!business) return NextResponse.json({ error: 'no_business' }, { status: 500 });
 
-  const { service_id, staff_id, starts_at, name, phone, email, notes, idempotency_key } = parsed.data;
+  const { service_id, staff_id, starts_at, name, phone, email, party_size, notes, idempotency_key } = parsed.data;
 
   const result = await createBooking({
     businessId: business.id,
@@ -60,6 +63,7 @@ export async function POST(request: Request) {
     name,
     phone,
     email: email || null,
+    partySize: party_size ?? 1,
     notes: notes ?? null,
     idempotencyKey: idempotency_key,
     source: 'web',
@@ -113,6 +117,7 @@ export async function POST(request: Request) {
         service_name: detail?.service_name ?? null,
         staff_name: detail?.staff_name ?? null,
         price_cents: result.appointment.price_cents_at_booking,
+        party_size: result.appointment.party_size,
       },
       manage_url: `/b/${result.appointment.manage_token}`,
     },

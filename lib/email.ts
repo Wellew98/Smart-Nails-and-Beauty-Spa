@@ -71,12 +71,16 @@ function layout(heading: string, body: string): string {
 
 function detailRows(appointment: AppointmentDetail): string {
   const when = formatDateTimeLabel(new Date(appointment.starts_at), appointment.business_timezone);
+  const party = appointment.party_size > 1
+    ? `<tr><td style="padding:6px 0;color:#7a5a72">Party</td><td style="padding:6px 0;text-align:right">${appointment.party_size} guests</td></tr>`
+    : '';
   return `
     <table style="width:100%;border-collapse:collapse;font-size:14px">
       <tr><td style="padding:6px 0;color:#7a5a72">Treatment</td><td style="padding:6px 0;text-align:right">${escapeHtml(appointment.service_name)}</td></tr>
+      ${party}
       <tr><td style="padding:6px 0;color:#7a5a72">When</td><td style="padding:6px 0;text-align:right">${escapeHtml(when)}</td></tr>
       <tr><td style="padding:6px 0;color:#7a5a72">With</td><td style="padding:6px 0;text-align:right">${escapeHtml(appointment.staff_name)}</td></tr>
-      <tr><td style="padding:6px 0;color:#7a5a72">Price</td><td style="padding:6px 0;text-align:right">${formatZar(appointment.price_cents_at_booking)}</td></tr>
+      <tr><td style="padding:6px 0;color:#7a5a72">Price</td><td style="padding:6px 0;text-align:right">${formatZar(appointment.price_cents_at_booking)}${appointment.party_size > 1 ? ' each' : ''}</td></tr>
     </table>`;
 }
 
@@ -118,6 +122,7 @@ export async function sendCustomerConfirmation(appointment: AppointmentDetail): 
     layout(
       `You're booked in, ${escapeHtml(appointment.customer_name.split(' ')[0])}`,
       `${detailRows(appointment)}
+       ${appointment.party_size > 1 ? `<p style="margin:16px 0 0;font-size:14px;line-height:1.6">Everyone in your party of ${appointment.party_size} gets the same treatment. You pay in studio.</p>` : ''}
        <p style="margin:20px 0 0;font-size:14px;line-height:1.6">
          Need to move or cancel it?
          <a href="${url}" style="color:#c2185b">Manage your booking</a>.
@@ -130,11 +135,12 @@ export async function sendCustomerConfirmation(appointment: AppointmentDetail): 
 }
 
 export async function sendOwnerNotification(appointment: AppointmentDetail): Promise<void> {
+  const party = appointment.party_size > 1 ? ` (party of ${appointment.party_size})` : '';
   await deliver(
     'owner notification',
     appointment,
     process.env.OWNER_NOTIFICATION_EMAIL,
-    `New booking: ${appointment.service_name}, ${appointment.staff_name}`,
+    `New booking: ${appointment.service_name}, ${appointment.staff_name}${party}`,
     layout(
       'New booking',
       `${detailRows(appointment)}

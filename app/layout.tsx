@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Fraunces, Great_Vibes, IBM_Plex_Mono, Karla } from 'next/font/google';
+import { Cormorant_Garamond, Great_Vibes, Jost } from 'next/font/google';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
 import { LocalBusinessJsonLd } from '@/components/local-business-jsonld';
@@ -9,28 +9,19 @@ import { providerConfigProblem } from '@/lib/ai/provider';
 import { getActiveServices, getBusiness, getOpeningHours } from '@/lib/public-data';
 import { SITE } from '@/lib/site';
 import './globals.css';
+import './flyer.css';
 
-/* Fraunces for display — a soft, slightly wonky serif with an optical size
-   axis, warm where a high-contrast Didone would be cold. Karla for body: a
-   grotesque with enough character to sit beside it.
-
-   Mono is reserved for CLOCK TIMES only, where a column of slots should line
-   up and read as a schedule. Prices use Karla's tabular figures instead:
-   DM Mono was the first choice here and its slashed zero turned R500 into
-   "R5ØØ", which reads as code, not money. IBM Plex Mono has a plain zero. */
-const fraunces = Fraunces({
+/* Flyer design fonts: Cormorant Garamond display, Great Vibes script
+   ("begins here"), Jost body. Loaded here so every page, including
+   /book and /admin, renders in the same type as the flyer. */
+const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
-  variable: '--font-fraunces',
-  axes: ['SOFT', 'WONK', 'opsz'],
+  weight: ['500', '600'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
   display: 'swap',
 });
 
-const karla = Karla({ subsets: ['latin'], variable: '--font-karla', display: 'swap' });
-
-/* Great Vibes is currently unused: Smart's logo ships as an image file (see
-   components/smart-mark.tsx), so no script webfont is needed. Kept loaded so
-   the font stack matches the template build; remove with grace-mark.tsx once
-   confirmed nothing references --font-great-vibes. */
 const greatVibes = Great_Vibes({
   subsets: ['latin'],
   weight: '400',
@@ -38,10 +29,10 @@ const greatVibes = Great_Vibes({
   display: 'swap',
 });
 
-const plexMono = IBM_Plex_Mono({
+const jost = Jost({
   subsets: ['latin'],
-  weight: ['400', '500'],
-  variable: '--font-plex-mono',
+  weight: ['300', '400', '500', '600'],
+  variable: '--font-jost',
   display: 'swap',
 });
 
@@ -54,8 +45,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
  * and the sample-menu banner all come from the database — and the owner edits
  * those in Admin > Setup. Without revalidation her changes would sit invisible
  * until someone redeployed, which is a confusing way for a price change to
- * behave. Five minutes keeps the pages effectively static for the §8 "loads in
- * under 2s" target while making edits show up on their own.
+ * behave. Five minutes keeps the pages effectively static while making edits
+ * show up on their own.
  *
  * /book and /b/[token] set `dynamic = 'force-dynamic'` themselves: availability
  * must never be served from a cache.
@@ -68,8 +59,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(SITE_URL),
-    title: { default: `${name} · ${SITE.tagline}`, template: `%s · ${name}` },
-    description: SITE.heroSupport,
+    title: {
+      default: `${name} | Beauty Begins Here – Glenanda, Johannesburg South`,
+      template: `%s · ${name}`,
+    },
+    description:
+      'Smart Nails and Beauty Spa, 75 Amanda Avenue, Glenanda, Johannesburg South. Nails, Gel, Pedicure, Massage, Facials, Waxing, Lashes and Men services. Special Package R500. Book online in under a minute. Mon–Sat 8am–8pm, Sun 9am–4pm.',
     openGraph: { title: name, description: SITE.heroSupport, type: 'website', locale: 'en_ZA' },
     robots: { index: true, follow: true },
   };
@@ -113,12 +108,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang="en-ZA"
-      className={`${fraunces.variable} ${karla.variable} ${plexMono.variable} ${greatVibes.variable}`}
+      className={`${cormorant.variable} ${greatVibes.variable} ${jost.variable}`}
     >
       <body className="flex min-h-screen flex-col">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-full focus:bg-aubergine-900 focus:px-4 focus:py-2 focus:text-blush-50"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-full focus:bg-[#141114] focus:px-4 focus:py-2 focus:text-white"
         >
           Skip to content
         </a>

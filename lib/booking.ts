@@ -29,6 +29,8 @@ export interface CreateBookingInput {
   name: string;
   phone: string;
   email?: string | null;
+  /** How many people are coming. 1 = a single booking. Defaults to 1. */
+  partySize?: number | null;
   notes?: string | null;
   idempotencyKey?: string | null;
   source?: BookingSource;
@@ -186,6 +188,7 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
     startsAt,
     name,
     email = null,
+    partySize = null,
     notes = null,
     idempotencyKey = null,
     source = 'web',
@@ -208,6 +211,12 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
       message: 'That does not look like a South African mobile number.',
     };
   }
+
+  // One row holds one slot for the whole party: everyone coming gets the
+  // same treatment in the same visit, and the owner arranges chairs around
+  // it. The diary, the confirmation and the owner mail all show the size so
+  // a party of three is never mistaken for a single booking.
+  const party = Math.max(1, Math.floor(partySize ?? 1));
 
   const service = await getService(serviceId);
   if (!service || service.business_id !== businessId) {
@@ -285,8 +294,8 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
         `insert into appointments (
             business_id, service_id, staff_id, resource_id, customer_id,
             starts_at, ends_at, blocks_until,
-            status, source, manage_token, price_cents_at_booking, notes, idempotency_key
-         ) values ($1,$2,$3,$4,$5,$6,$7,$8,'confirmed',$9,$10,$11,$12,$13)
+            status, source, manage_token, price_cents_at_booking, party_size, notes, idempotency_key
+         ) values ($1,$2,$3,$4,$5,$6,$7,$8,'confirmed',$9,$10,$11,$12,$13,$14)
            returning *`,
         [
           businessId,
@@ -301,6 +310,7 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
           manageToken,
           // §7.1: price is snapshotted, never re-derived from services later.
           service.price_cents,
+          party,
           notes,
           idempotencyKey,
         ],
@@ -314,7 +324,7 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingR
         [
           row.id,
           ownerEntered ? 'admin' : 'customer',
-          JSON.stringify({ source, service: service.name, price_cents: service.price_cents }),
+          JSON.stringify({ source, service: service.name, price_cents: service.price_cents, party_size: party }),
         ],
       );
 
@@ -540,9 +550,9 @@ export async function rescheduleBooking(options: {
         `insert into appointments (
             business_id, service_id, staff_id, resource_id, customer_id,
             starts_at, ends_at, blocks_until,
-            status, source, manage_token, price_cents_at_booking, notes,
+            status, source, manage_token, price_cents_at_booking, party_size, notes,
             rescheduled_from
-         ) values ($1,$2,$3,$4,$5,$6,$7,$8,'confirmed',$9,$10,$11,$12,$13)
+         ) values ($1,$2,$3,$4,$5,$6,$7,$8,'confirmed',$9,$10,$11,$12,$13,$14)
            returning *`,
         [
           original.business_id,
@@ -558,6 +568,9 @@ export async function rescheduleBooking(options: {
           // §7.1: the price stays the price it was booked at, even if the
           // service has since been repriced.
           original.price_cents_at_booking,
+          // The party moves with the booking: rescheduling never silently
+          // drops three guests back to one.
+          original.party_size,
           original.notes,
           original.id,
         ],

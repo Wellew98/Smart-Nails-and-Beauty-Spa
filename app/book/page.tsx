@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
 export default async function BookPage({
   searchParams,
 }: {
-  searchParams: Promise<{ service?: string }>;
+  searchParams: Promise<{ service?: string; category?: string }>;
 }) {
   const params = await searchParams;
   const business = (await getBusiness())!;
@@ -57,11 +57,22 @@ export default async function BookPage({
     staff: staffLists[index].map((member) => ({ id: member.id, name: member.name })),
   }));
 
+  // A homepage card deep-links its category (?category=Gel). Only real
+  // poster headings survive: anything else falls back to the default tab.
+  const knownCategories = new Set(
+    bookable
+      .map((service) => service.description?.trim() ?? '')
+      .filter((label) => label.length > 0 && label.length <= 30),
+  );
+  const preselectedCategory =
+    params.category && knownCategories.has(params.category) ? params.category : null;
+
   return (
     <BookingFlow
       services={bookable}
       days={days}
       preselectedServiceId={params.service ?? null}
+      preselectedCategory={preselectedCategory}
       minNoticeMinutes={business.min_notice_minutes}
       businessName={business.name}
       businessPhone={business.phone}

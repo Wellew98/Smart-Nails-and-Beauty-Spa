@@ -46,6 +46,7 @@ export default async function TodayPage({
         customerName: appointment.customer_name,
         customerPhone: appointment.customer_phone,
         priceCents: appointment.price_cents_at_booking,
+        partySize: appointment.party_size,
         notes: appointment.notes,
       }))}
     />
