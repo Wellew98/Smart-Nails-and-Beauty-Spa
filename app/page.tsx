@@ -151,17 +151,8 @@ export default async function HomePage() {
               <span>GLOW</span>
             </p>
             <p className="lede">
-              Nails, Pedicure, Massage, Facials, Waxing, Lashes &amp; more — real prices on the
-              prices page, booking in seconds. <strong>BEAUTY. CONFIDENCE. YOU.</strong>
+              <strong>BEAUTY. CONFIDENCE. YOU.</strong>
             </p>
-            <div className="hero-btns">
-              <Link className="btn btn-pink" href="/book">
-                Book online
-              </Link>
-              <Link className="btn btn-ghost" href="/prices">
-                View Prices
-              </Link>
-            </div>
             <ul className="trust">
               <li>✓ Appointments + walk-ins</li>
               <li>✓ Men services available</li>
@@ -237,9 +228,6 @@ export default async function HomePage() {
         <div className="wrap">
           <p className="eyebrow">Transparent pricing</p>
           <h2>Full price list</h2>
-          <p className="sub">
-            Price-only, exactly as our flyer — on its own page. Tap any item to book it online.
-          </p>
           <div className="offer-btns">
             <Link
               className="btn btn-pink"
@@ -259,10 +247,6 @@ export default async function HomePage() {
         <div className="wrap">
           <p className="eyebrow">Inspiration</p>
           <h2>Feel the experience</h2>
-          <p className="sub">
-            Nails, massage, facials and more — a taste of the range while our own studio
-            photographs are on the way.
-          </p>
           <div className="gal">
             {GALLERY.map((shot) => (
               <figure key={shot.img}>
