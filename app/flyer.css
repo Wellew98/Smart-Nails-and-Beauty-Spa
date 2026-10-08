@@ -155,6 +155,11 @@ footer{background:#141114;color:#d8cdd2}
   .badge-cover .b-top{font-size:.66rem}
   .badge-cover .b-mid{font-size:.82rem}
   .badge-cover .b-bot{font-size:1.4rem}
+  /* hero photo: crop the tall portrait into a banner so it stops
+     filling two screens; the badge shrinks with it and sits inside */
+  .hero-photo{max-height:440px}
+  .hero-photo img{height:440px;object-fit:cover;object-position:center 30%}
+  .badge-cover{width:70%;left:24%;bottom:4%}
   /* service cards: slimmer 2-up like the booking flow */
   .svc img{height:120px}
   .svc h3{font-size:1.1rem;margin:.6rem .8rem .1rem}
