@@ -136,4 +136,28 @@ footer{background:#141114;color:#d8cdd2}
   .links{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;flex-direction:column;padding:1rem 1.2rem;border-bottom:1px solid var(--line)}
   .links.open{display:flex}.burger{display:block}
 }
-@media(max-width:560px){.price-groups{grid-template-columns:1fr}.grid8{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){
+  .price-groups{grid-template-columns:1fr}
+  .grid8{grid-template-columns:1fr 1fr}
+  /* header: smaller wordmark so brand + Book + burger fit 360px */
+  .nav{gap:.5rem;padding:.55rem .8rem}
+  .brand img{width:38px;height:38px}
+  .brand strong{font-size:.85rem;letter-spacing:.2em}
+  .brand small{font-size:.5rem;letter-spacing:.08em;white-space:nowrap}
+  /* hero: the logo circle no longer climbs into the sticky nav */
+  .hero{padding:1.6rem 1rem 2rem}
+  .sun{width:190px;height:190px;margin:0 auto .8rem}
+  .sun::before{inset:-18px}
+  .hero-logo{width:160px;height:160px}
+  /* fly-rules: tighter tracking that wraps centred instead of overflowing */
+  .fly-rules{letter-spacing:.14em;font-size:.72rem;flex-wrap:wrap;justify-content:center;row-gap:.3rem}
+  /* badge text follows the smaller photo down */
+  .badge-cover .b-top{font-size:.66rem}
+  .badge-cover .b-mid{font-size:.82rem}
+  .badge-cover .b-bot{font-size:1.4rem}
+  /* service cards: slimmer 2-up like the booking flow */
+  .svc img{height:120px}
+  .svc h3{font-size:1.1rem;margin:.6rem .8rem .1rem}
+  .svc p{font-size:.82rem;margin:.1rem .8rem .5rem}
+  .svc span{margin:0 .8rem;font-size:.88rem}
+}
