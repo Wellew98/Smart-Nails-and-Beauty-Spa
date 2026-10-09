@@ -48,9 +48,8 @@ export function PriceList({ groups }: { groups: PriceGroup[] }) {
             <h3>{group.heading}</h3>
             <ul>
               {group.items.map((item) => {
-                const isDeal = item.name.startsWith('Full Body Offer');
                 return (
-                  <li key={item.id} className={isDeal ? 'deal' : undefined}>
+                  <li key={item.id}>
                     <Link href={`/book?service=${item.id}`}>
                       <span>{item.name}</span>
                       <strong>{formatRand(item.priceCents)}</strong>

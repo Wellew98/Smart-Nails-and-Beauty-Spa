@@ -64,7 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s · ${name}`,
     },
     description:
-      'Smart Nails and Beauty Spa, 75 Amanda Avenue, Glenanda, Johannesburg South. Nails, Gel, Pedicure, Massage, Facials, Waxing, Lashes and Men services. Special Package R500. Book online in under a minute. Mon–Sat 8am–8pm, Sun 9am–4pm.',
+      'Smart Nails and Beauty Spa, 75 Amanda Avenue, Glenanda, Johannesburg South. Nails, Pedicure, Massage, Facials, Lashes, Waxing, Makeup and Body Treatments. Book online in under a minute. Mon–Sat 8am–8pm, Sun 9am–4pm.',
     openGraph: { title: name, description: SITE.heroSupport, type: 'website', locale: 'en_ZA' },
     robots: { index: true, follow: true },
   };

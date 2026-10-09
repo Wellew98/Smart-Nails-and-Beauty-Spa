@@ -8,37 +8,29 @@ import { REVIEW_URL } from '@/lib/site';
 export const metadata: Metadata = {
   title: 'Smart Nails and Beauty Spa | Beauty Begins Here – Glenanda, Johannesburg South',
   description:
-    'Smart Nails and Beauty Spa, 75 Amanda Avenue, Glenanda, Johannesburg South. Nails, Gel, Pedicure, Massage, Facials, Waxing, Lashes and Men services. Special Package R500. Book online in under a minute. Mon–Sat 8am–8pm, Sun 9am–4pm.',
+    'Smart Nails and Beauty Spa, 75 Amanda Avenue, Glenanda, Johannesburg South. Nails, Pedicure, Massage, Facials, Lashes, Waxing, Makeup and Body Treatments. Book online in under a minute. Mon–Sat 8am–8pm, Sun 9am–4pm.',
 };
 
 const SERVICE_CARDS = [
   {
     name: 'Nails',
-    line: 'Acrylic, tips, sculpture',
-    from: 'from R100',
+    line: 'Acrylic, gel, shaping',
+    from: 'from R70',
     category: 'Nails',
     img: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=800&q=80&auto=format&fit=crop',
     alt: 'Pink gel manicure close-up',
   },
   {
-    name: 'Gel',
-    line: 'Hands, feet, Bio Sculpture',
-    from: 'from R200',
-    category: 'Gel',
-    img: 'https://images.unsplash.com/photo-1610992015732-2449b76344bc?w=800&q=80&auto=format&fit=crop',
-    alt: 'Gel polish colour selection',
-  },
-  {
     name: 'Pedicure',
-    line: 'Gel, normal, paraffin',
-    from: 'from R100',
+    line: 'Express, gel, Smart pedi',
+    from: 'from R200',
     category: 'Pedicure',
     img: 'https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?w=800&q=80&auto=format&fit=crop',
     alt: 'Feet soaking in a pedicure foot bath with orchids',
   },
   {
     name: 'Massage',
-    line: 'Swedish, sport, hot stone',
+    line: 'Full body, hot stone, couples',
     from: 'from R200',
     category: 'Massage',
     img: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=800&q=80&auto=format&fit=crop',
@@ -46,35 +38,43 @@ const SERVICE_CARDS = [
   },
   {
     name: 'Facials',
-    line: 'Hydrating, deep cleanse',
+    line: 'Deep cleanse, glow, anti-aging',
     from: 'from R300',
     category: 'Facials',
     img: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&q=80&auto=format&fit=crop',
     alt: 'Hydrating facial treatment',
   },
   {
-    name: 'Waxing',
-    line: 'Face, body, R700 offer',
-    from: 'from R100',
-    category: 'Women waxing',
-    img: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=800&q=80&auto=format&fit=crop',
-    alt: 'Professional waxing and skincare products',
-  },
-  {
     name: 'Lashes',
-    line: 'Classic, volume, fill',
-    from: 'from R100',
-    category: 'Eyelash extensions',
+    line: 'Classic, hybrid, volume',
+    from: 'from R150',
+    category: 'Lashes',
     img: 'https://images.unsplash.com/photo-1589710751893-f9a6770ad71b?w=800&q=80&auto=format&fit=crop',
     alt: 'Eyelash extensions being applied with tweezers',
   },
   {
-    name: 'Men',
-    line: 'Mani, pedi, buff & shine',
-    from: 'from R150',
-    category: 'Men services',
-    img: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800&q=80&auto=format&fit=crop',
-    alt: 'Men grooming barbershop service',
+    name: 'Waxing',
+    line: 'Face, body, Brazilian',
+    from: 'from R100',
+    category: 'Waxing',
+    img: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=800&q=80&auto=format&fit=crop',
+    alt: 'Professional waxing and skincare products',
+  },
+  {
+    name: 'Makeup',
+    line: 'Full glam look',
+    from: 'R550',
+    category: 'Makeup',
+    img: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800&q=80&auto=format&fit=crop',
+    alt: 'Makeup beauty close-up',
+  },
+  {
+    name: 'Body',
+    line: 'Body scrub ritual',
+    from: 'R450',
+    category: 'Body treatments',
+    img: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&q=80&auto=format&fit=crop',
+    alt: 'Warm oil spa body treatment ritual',
   },
 ] as const;
 
@@ -153,10 +153,10 @@ export default async function HomePage() {
             <p className="lede">
               <strong>BEAUTY. CONFIDENCE. YOU.</strong>
             </p>
-            <ul className="trust">
-              <li>✓ Appointments + walk-ins</li>
-              <li>✓ Men services available</li>
-            </ul>
+              <ul className="trust">
+                <li>✓ Appointments + walk-ins</li>
+                <li>✓ Everyone welcome</li>
+              </ul>
           </div>
           <div className="hero-card">
             <Link
@@ -200,7 +200,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <PromoPopup serviceId={specialId} />
+      {specialId ? <PromoPopup serviceId={specialId} /> : null}
 
       {/* SERVICES GRID */}
       <section className="section" id="services">
@@ -229,11 +229,8 @@ export default async function HomePage() {
           <p className="eyebrow">Transparent pricing</p>
           <h2>Full price list</h2>
           <div className="offer-btns">
-            <Link
-              className="btn btn-pink"
-              href={specialId ? `/book?service=${specialId}` : '/book'}
-            >
-              Book the R500 special
+            <Link className="btn btn-pink" href="/book">
+              Book online
             </Link>
             <Link className="btn btn-dark" href="/prices">
               View all prices
@@ -304,12 +301,12 @@ export default async function HomePage() {
           </details>
           <details>
             <summary>Do you do men&apos;s services?</summary>
-            <p>Yes — Full Pedicure R250, Full Manicure R250, Buff &amp; Shine R150.</p>
+            <p>Yes, our Men&apos;s Facial is R450. Every treatment on the menu is open to everyone.</p>
           </details>
           <details>
-            <summary>How do I book the R500 Special?</summary>
+            <summary>How do I book?</summary>
             <p>
-              Open <Link href="/prices">the price list</Link>, tap the R500 Special Package and
+              Open <Link href="/prices">the price list</Link>, tap the treatment you want and
               confirm your time online. Just that.
             </p>
           </details>

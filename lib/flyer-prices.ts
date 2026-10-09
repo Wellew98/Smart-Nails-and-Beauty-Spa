@@ -3,18 +3,24 @@ import type { Service } from './types';
 /**
  * The flyer's own category headings, in flyer order.
  *
- * The database stores the category in `services.description` (migration
- * 0006); these labels are the display form of those values. Anything with
- * no recognised category falls into an unheaded group at the top so the
+ * The database stores the category in `services.description` (migrations
+ * 0006, 0010); these labels are the display form of those values. Anything
+ * with no recognised category falls into an unheaded group at the top so the
  * page never hides a service.
  */
 const HEADINGS: { match: string; label: string }[] = [
-  { match: 'special package', label: 'Special Package' },
-  { match: 'nails', label: 'Nails' },
-  { match: 'gel', label: 'Gel Application' },
+  { match: 'makeup', label: 'Makeup' },
+  { match: 'body treatments', label: 'Body Treatments' },
   { match: 'pedicure', label: 'Pedicure' },
-  { match: 'massage', label: 'Massage' },
   { match: 'facials', label: 'Facials' },
+  { match: 'nails', label: 'Nails' },
+  { match: 'massage', label: 'Massage' },
+  { match: 'lashes', label: 'Lashes' },
+  { match: 'waxing', label: 'Waxing' },
+  // Retired with the October 2026 flyer (migration 0010); kept so any
+  // deactivated rows still group instead of vanishing if reactivated.
+  { match: 'special package', label: 'Special Package' },
+  { match: 'gel', label: 'Gel Application' },
   { match: 'eyelash extensions', label: 'Eyelash Extensions' },
   { match: 'women waxing', label: 'Waxing — Women Face' },
   { match: 'body waxing', label: 'Waxing — Body' },
@@ -36,9 +42,13 @@ const unsplash = (id: string) => `https://images.unsplash.com/${id}?w=800&q=80&a
  * group's display label. Anything unrecognised gets the products shot.
  */
 const GROUP_IMAGES: Record<string, { img: string; alt: string }> = {
-  'Special Package': {
-    img: unsplash('photo-1522337660859-02fbefca4702'),
-    alt: 'Pink gel nails finish',
+  Makeup: {
+    img: unsplash('photo-1487412947147-5cebf100ffc2'),
+    alt: 'Makeup beauty close-up',
+  },
+  'Body Treatments': {
+    img: unsplash('photo-1544161515-4ab6ce6db874'),
+    alt: 'Warm oil spa body treatment ritual',
   },
   Nails: {
     img: unsplash('photo-1604654894610-df63bc536371'),
@@ -60,9 +70,17 @@ const GROUP_IMAGES: Record<string, { img: string; alt: string }> = {
     img: unsplash('photo-1570172619644-dfd03ed5d881'),
     alt: 'Hydrating facial treatment',
   },
-  'Eyelash Extensions': {
+  Lashes: {
     img: unsplash('photo-1589710751893-f9a6770ad71b'),
     alt: 'Eyelash extensions being applied with tweezers',
+  },
+  Waxing: {
+    img: unsplash('photo-1512496015851-a90fb38ba796'),
+    alt: 'Professional waxing and skincare products',
+  },
+  'Special Package': {
+    img: unsplash('photo-1522337660859-02fbefca4702'),
+    alt: 'Pink gel nails finish',
   },
   'Waxing — Women Face': {
     img: unsplash('photo-1512496015851-a90fb38ba796'),
@@ -113,8 +131,11 @@ export function groupForFlyer(services: Service[]): FlyerPriceGroup[] {
     .sort((a, b) => rank(a.heading) - rank(b.heading));
 }
 
-/** The R500 signature special, for the homepage popup. */
+/** The signature special, for the homepage popup. Null when the current flyer has none. */
 export function findSpecialPackageId(services: Service[]): string | null {
-  const hit = services.find((service) => service.price_cents === 50000);
+  const hit = services.find(
+    (service) =>
+      (service.description ?? '').trim().toLowerCase() === 'special package',
+  );
   return hit?.id ?? null;
 }

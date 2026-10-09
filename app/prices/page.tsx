@@ -6,7 +6,7 @@ import { getActiveServices, getBusiness } from '@/lib/public-data';
 export const metadata: Metadata = {
   title: 'Prices',
   description:
-    'Full price list, exactly as our flyer. Tap any item to book it online in seconds. Special Package R500.',
+    'Full price list, exactly as our flyer. Tap any item to book it online in seconds.',
 };
 
 /**
