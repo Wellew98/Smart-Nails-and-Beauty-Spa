@@ -146,6 +146,18 @@ summary{cursor:pointer;font-weight:600}
 .pill-live{color:var(--pink-d);border-color:var(--pink)}
 .visit-meta{margin:.35rem 0 .9rem;color:var(--muted)}
 .account-head{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+/* category/service guide pages: calm single column, small image, clear
+   sections. Scoped to treatments-* so the hub cards are untouched. */
+[id^="treatments-"] h3{font-size:1.5rem;margin:2.2rem 0 .8rem}
+.cat-img{display:block;width:100%;max-height:300px;object-fit:cover;border-radius:16px;margin:1.2rem 0 0}
+.treat-list{list-style:none;margin:.8rem 0 0;padding:0}
+.treat-list li{border-bottom:1px solid var(--line)}
+.treat-list li:first-child{border-top:1px solid var(--line)}
+.treat-list a{display:block;padding:.7rem .4rem;text-decoration:none;color:var(--ink);border-radius:10px}
+.treat-list a:hover{background:#fff}
+[id^="treatments-"] dl{margin:.8rem 0 0}
+[id^="treatments-"] dt{font-weight:600;margin:1rem 0 .2rem}
+[id^="treatments-"] dd{margin:0 0 .6rem;color:var(--ink)}
 /* footer */
 footer{background:#141114;color:#d8cdd2}
 .foot{display:flex;flex-direction:column;gap:.8rem;padding:1.6rem 20px}

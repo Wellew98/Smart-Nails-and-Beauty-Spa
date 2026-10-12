@@ -100,14 +100,14 @@ export default async function CategoryPage({
           {content.label} in {SERVICE_AREAS[0]}
         </h2>
         <p className="sub" data-hero-item>
-          {content.tagline} {priceRange} · {durationRange} · {business.phone}
+          {content.tagline} {priceRange} · {durationRange}
         </p>
         {image && (
           <img
+            className="cat-img"
             src={image.img}
             alt={image.alt}
             loading="lazy"
-            style={{ width: '100%', borderRadius: '16px', margin: '1rem 0' }}
           />
         )}
 
@@ -125,14 +125,17 @@ export default async function CategoryPage({
         <h3>
           {content.label} treatments ({mine.length})
         </h3>
-        <ul>
+        <ul className="treat-list">
           {mine.map((service) => {
             const slug = slugFor(service.id) ?? slugify(service.name);
             return (
               <li key={service.id}>
                 <Link href={`/treatments/${content.slug}/${slug}`}>
-                  {service.name}, from {formatZar(service.price_cents)}, about{' '}
-                  {service.duration_minutes} minutes
+                  {service.name}{' '}
+                  <span className="fine">
+                    from {formatZar(service.price_cents)}, about {service.duration_minutes}{' '}
+                    minutes
+                  </span>
                 </Link>
               </li>
             );
