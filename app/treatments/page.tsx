@@ -1,9 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { getActiveServices, getBusiness } from '@/lib/public-data';
 import { CATEGORY_CONTENT } from '@/lib/category-content';
-import { formatZar } from '@/lib/money';
 
 export const metadata: Metadata = {
   title: 'Treatments in Glenanda',
@@ -56,21 +53,7 @@ const HUB_IMAGES: Record<string, { img: string; alt: string }> = {
   },
 };
 
-export default async function TreatmentsPage() {
-  const business = await getBusiness();
-  if (!business) notFound();
-  const services = await getActiveServices(business.id);
-
-  const rangeFor = (key: string): string | null => {
-    const prices = services
-      .filter((service) => (service.description ?? '').trim().toLowerCase() === key)
-      .map((service) => service.price_cents);
-    if (prices.length === 0) return null;
-    return Math.min(...prices) === Math.max(...prices)
-      ? formatZar(prices[0])
-      : `${formatZar(Math.min(...prices))} to ${formatZar(Math.max(...prices))}`;
-  };
-
+export default function TreatmentsPage() {
   return (
     <section className="section" id="treatments" data-hero>
       <div className="wrap">
@@ -80,17 +63,22 @@ export default async function TreatmentsPage() {
           </p>
           <h2 data-split>Treatments</h2>
           <p className="sub" data-hero-item>
-            Eight things we do, with honest prices. Pick one to read more, or
-            skip straight to booking. No account needed.
+            Eight things we do. Pick one to see treatments and prices, or skip
+            straight to booking. No account needed.
           </p>
         </div>
         <ul className="menu-index" data-reveal>
           {CATEGORY_CONTENT.map((content) => (
             <li key={content.slug}>
               <Link href={`/treatments/${content.slug}`}>
-                <span className="m-name">{content.label}</span>
+                <span className="m-lead">
+                  <span className="m-name">{content.label}</span>
+                  <span className="m-tag">{content.tagline}</span>
+                </span>
                 <span className="m-dots" aria-hidden="true" />
-                <span className="m-price">{rangeFor(content.key) ?? content.tagline}</span>
+                <span className="m-go" aria-hidden="true">
+                  ›
+                </span>
               </Link>
             </li>
           ))}
