@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { createBooking, getAppointmentById } from '@/lib/booking';
 import { getBusiness } from '@/lib/public-data';
 import { sendCustomerConfirmation, sendOwnerNotification } from '@/lib/email';
-import { queueOwnerAlert } from '@/lib/wa-outbox';
+import { queueCustomerAlert, queueOwnerAlert } from '@/lib/wa-outbox';
 import { formatSlotLabel } from '@/lib/time';
 import { getActiveStaff } from '@/lib/public-data';
 
@@ -106,9 +106,11 @@ export async function POST(request: Request) {
   if (detail && !result.replayed) {
     after(async () => {
       await Promise.all([sendCustomerConfirmation(detail), sendOwnerNotification(detail)]);
-      // WhatsApp owner alert via the salon-PC sender (store-and-forward outbox).
-      // Best-effort like the mails: the queue helper swallows its own errors.
+      // WhatsApp alerts via the salon-PC sender (store-and-forward outbox):
+      // owner first, then the customer confirmation. Best-effort like the
+      // mails: the queue helpers swallow their own errors.
       await queueOwnerAlert(detail);
+      await queueCustomerAlert(detail);
       // Member accounts: a signed-in customer inherits this booking into her
       // visit history. Best-effort like the mails above.
       try {
