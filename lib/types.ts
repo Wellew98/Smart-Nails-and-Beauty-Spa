@@ -68,6 +68,10 @@ export interface Customer {
   phone: string;
   email: string | null;
   notes: string | null;
+  /** Member accounts: Clerk link. Optional so pre-migration rows still type. */
+  clerk_user_id?: string | null;
+  /** Win-back send-state. Optional, same reason. */
+  winback_sent_at?: Date | null;
 }
 
 export interface Appointment {
@@ -91,6 +95,8 @@ export interface Appointment {
   cancelled_at: Date | null;
   idempotency_key: string | null;
   rescheduled_from: string | null;
+  /** 24h reminder send-state. Optional so pre-migration rows still type. */
+  reminder_sent_at?: Date | null;
 }
 
 /**

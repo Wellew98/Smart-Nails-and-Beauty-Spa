@@ -1,4 +1,8 @@
 import 'server-only';
+import { render } from '@react-email/render';
+import { ReminderEmail } from '@/emails/reminder';
+import { WelcomeEmail } from '@/emails/welcome';
+import { WinbackEmail } from '@/emails/winback';
 import { getTransport } from './mail';
 import { formatZar } from './money';
 import { formatPhoneForDisplay } from './phone';
@@ -231,4 +235,103 @@ export async function sendVoucherIssued(input: VoucherEmailInput): Promise<boole
     });
     return false;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Outcomes build (video system 2): welcome, reminder, win-back.
+//
+// Unlike the booking confirmations above, the callers here need to know
+// whether a send actually went out: the Clerk webhook must not claim a
+// welcome it never sent, and the crons stamp send-state so no customer is
+// ever mailed twice. Same boolean contract as sendVoucherIssued, still
+// never throwing.
+// ---------------------------------------------------------------------------
+
+export interface OutreachMessage {
+  to: string;
+  name: string;
+  businessName: string;
+  businessPhone: string;
+}
+
+async function deliverOutreach(
+  what: string,
+  message: OutreachMessage,
+  subject: string,
+  html: string,
+): Promise<boolean> {
+  const transport = getTransport();
+  if (!transport) return false;
+
+  try {
+    await transport.send({ to: message.to, subject, html, fromName: message.businessName });
+    return true;
+  } catch (error) {
+    console.error(`[email] ${what} failed`, {
+      transport: transport.name,
+      ...safeError(error),
+    });
+    return false;
+  }
+}
+
+export async function sendWelcome(message: OutreachMessage): Promise<boolean> {
+  const first = message.name.trim().split(' ')[0] || 'there';
+  const html = await render(
+    <WelcomeEmail
+      firstName={first}
+      bookUrl={`${SITE_URL}/book`}
+      businessName={message.businessName}
+      businessPhone={formatPhoneForDisplay(message.businessPhone)}
+    />,
+  );
+  return deliverOutreach('welcome', message, `Welcome to ${message.businessName}`, html);
+}
+
+export async function sendReminder(appointment: AppointmentDetail): Promise<boolean> {
+  const transport = getTransport();
+  if (!transport || !appointment.customer_email) return false;
+
+  const when = formatDateTimeLabel(new Date(appointment.starts_at), appointment.business_timezone);
+  const html = await render(
+    <ReminderEmail
+      serviceName={appointment.service_name}
+      when={when}
+      staffName={appointment.staff_name}
+      price={formatZar(appointment.price_cents_at_booking)}
+      partySize={appointment.party_size}
+      manageUrl={manageUrl(appointment.manage_token)}
+      businessName={appointment.business_name}
+      businessPhone={formatPhoneForDisplay(appointment.business_phone)}
+    />,
+  );
+  try {
+    await transport.send({
+      to: appointment.customer_email,
+      subject: `Reminder: ${appointment.service_name}, ${when}`,
+      html,
+      fromName: appointment.business_name,
+    });
+    return true;
+  } catch (error) {
+    console.error('[email] reminder failed', {
+      appointmentId: appointment.id,
+      transport: transport.name,
+      ...safeError(error),
+    });
+    return false;
+  }
+}
+
+export async function sendWinback(message: OutreachMessage): Promise<boolean> {
+  const first = message.name.trim().split(' ')[0] || 'there';
+  const html = await render(
+    <WinbackEmail
+      firstName={first}
+      bookUrl={`${SITE_URL}/book`}
+      businessName={message.businessName}
+      businessPhone={formatPhoneForDisplay(message.businessPhone)}
+    />,
+  );
+  return deliverOutreach('win-back', message, `We miss you at ${message.businessName}`, html);
 }

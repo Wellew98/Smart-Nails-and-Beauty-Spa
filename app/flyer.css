@@ -3,6 +3,11 @@
   --blush:#F9D6E0; --gold:#C9A86A; --muted:#6f6369; --card:#fff; --line:#f1e2e7;
 }
 *{box-sizing:border-box}html{scroll-behavior:smooth}
+/* Marketing pages carry full-bleed bands and animated elements (marquee,
+   parallax photo, badge pop). Clip any sideways spill at the document so a
+   decorative overshoot can never widen the page. `clip`, not `hidden`, so
+   the sticky nav keeps working. */
+html,body{overflow-x:clip}
 body{margin:0;font-family:'Jost',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--ivory);color:var(--ink);line-height:1.6}
 h1,h2,h3{font-family:'Cormorant Garamond',Georgia,serif;line-height:1.08;margin:.2em 0 .4em;letter-spacing:.2px}
 h1{font-size:clamp(2.6rem,6vw,4.6rem)}h2{font-size:clamp(1.8rem,3.6vw,2.6rem)}
@@ -80,6 +85,13 @@ h1{font-size:clamp(2.6rem,6vw,4.6rem)}h2{font-size:clamp(1.8rem,3.6vw,2.6rem)}
 .promo-close{position:absolute;top:.6rem;right:.8rem;width:2.2rem;height:2.2rem;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-size:1.3rem;line-height:1;cursor:pointer}
 .promo-close:hover{background:rgba(255,255,255,.15)}
 .offer-btns{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1rem}
+/* marquee — the menu in one breath, pacing the hero into the services */
+.marquee{overflow:hidden;background:#141114;color:#fff;padding:.7rem 0}
+.marquee-track{margin:0;display:flex;width:max-content;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:1.2rem;white-space:nowrap}
+.marquee-half{display:flex;align-items:center;justify-content:space-evenly;min-width:100vw}
+.marquee-half span+span::before{content:"·";margin-right:1.6em;color:var(--pink)}
+@media(prefers-reduced-motion:no-preference){.marquee-track{animation:marquee 30s linear infinite}}
+@keyframes marquee{to{transform:translateX(-50%)}}
 /* sections */
 .section{padding:3rem 0}
 .grid8{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem;margin-top:1.2rem}

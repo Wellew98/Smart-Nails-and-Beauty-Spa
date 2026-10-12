@@ -54,7 +54,10 @@ export default async function PrivacyPage() {
   return (
     <div className="mx-auto max-w-2xl px-5 pt-14 pb-4 sm:pt-20">
       <p className="text-xs tracking-[0.22em] text-gilt-600 uppercase">Privacy</p>
-      <h1 className="font-display mt-4 text-[2.25rem] leading-[1.05] font-semibold text-aubergine-900 sm:text-5xl">
+      <h1
+        className="font-display mt-4 text-[2.25rem] leading-[1.05] font-semibold text-aubergine-900 sm:text-5xl"
+        data-split
+      >
         What we keep, and how to have it removed.
       </h1>
       <p className="mt-6 text-[1.05rem] leading-relaxed text-mauve-600">
@@ -169,7 +172,7 @@ export default async function PrivacyPage() {
 
       <Section title="Gift vouchers">
         <p>
-          Vouchers are bought and paid for in the studio, never online — the site never takes a
+          Vouchers are bought and paid for in the studio, never online. The site never takes a
           payment. When one is issued, the studio may record who bought it, a phone number for
           them, and an email address to send the code to. All three are optional: a voucher works
           with none of them.
@@ -180,7 +183,7 @@ export default async function PrivacyPage() {
             The short code on the card, and the link it can be emailed with, are what let anyone
             holding them check the balance
           </strong>{' '}
-          — the same way your booking link works above. A voucher is transferable by law, so it is
+          Like your booking link above. A voucher is transferable by law, so it is
           not tied to whoever bought it, and the balance page shows nothing about the purchaser: no
           name, no phone number, only the value, the history and the expiry date.
         </p>
@@ -248,8 +251,8 @@ export default async function PrivacyPage() {
         </p>
         <p>
           If your name, phone number or email is recorded against a gift voucher, that is erased
-          the same way and at the same time. The voucher itself keeps working exactly as before —
-          its balance, its history and its expiry are the studio&rsquo;s financial record, not
+          the same way and at the same time. The voucher itself keeps working exactly as before.
+          Its balance, its history and its expiry are the studio&rsquo;s financial record, not
           yours to erase, and whoever is holding the card or the link can still use it. Only who it
           names is removed, and the link it was emailed with stops working, so an old email cannot
           be used to identify you afterwards.

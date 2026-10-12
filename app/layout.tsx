@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Cormorant_Garamond, Great_Vibes, Jost } from 'next/font/google';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
+import { ClerkShell } from '@/components/clerk-shell';
+import { MotionEngine } from '@/components/motion';
 import { LocalBusinessJsonLd } from '@/components/local-business-jsonld';
 import { ChatWidget } from '@/components/ai/chat-widget';
 import { limitsFrom } from '@/lib/ai/orchestrator';
@@ -60,11 +62,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(SITE_URL),
     title: {
-      default: `${name} | Beauty Begins Here – Glenanda, Johannesburg South`,
+      default: `${name} | Beauty Begins Here, Glenanda, Johannesburg South`,
       template: `%s · ${name}`,
     },
     description:
-      'Smart Nails and Beauty Spa, 75 Amanda Avenue, Glenanda, Johannesburg South. Nails, Pedicure, Massage, Facials, Lashes, Waxing, Makeup and Body Treatments. Book online in under a minute. Mon–Sat 8am–8pm, Sun 9am–4pm.',
+      'Smart Nails and Beauty Spa, 75 Amanda Avenue, Glenanda, Johannesburg South. Nails, Pedicure, Massage, Facials, Lashes, Waxing, Makeup and Body Treatments. Book online in under a minute. Mon to Sat 8am to 8pm, Sun 9am to 4pm.',
     openGraph: { title: name, description: SITE.heroSupport, type: 'website', locale: 'en_ZA' },
     robots: { index: true, follow: true },
   };
@@ -118,8 +120,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           Skip to content
         </a>
         <SiteHeader businessName={business.name} />
+        <MotionEngine />
         <main id="main" className="flex-1">
-          {children}
+          <ClerkShell>{children}</ClerkShell>
         </main>
         <SiteFooter business={business} hours={hours} chatWidgetPresent={assistantAvailable} />
         {assistantAvailable && (

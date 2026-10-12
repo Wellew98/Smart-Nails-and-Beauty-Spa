@@ -19,7 +19,7 @@ export function SiteHeader({ businessName }: { businessName: string }) {
   return (
     <>
       <div className="topbar">
-        <span>Mon–Sat 8am–8pm • Sun 9am–4pm</span>
+        <span>Mon to Sat 8am to 8pm • Sun 9am to 4pm</span>
         <span className="dot">•</span>
         <span>75 Amanda Ave, Glenanda</span>
         <span className="dot">•</span>
@@ -35,7 +35,11 @@ export function SiteHeader({ businessName }: { businessName: string }) {
           </span>
         </Link>
         <nav className={`links${open ? ' open' : ''}`} id="navLinks" aria-label="Primary">
-          <Link href="/#services" onClick={() => setOpen(false)}>
+          <Link
+            href="/treatments"
+            aria-current={pathname.startsWith('/treatments') ? 'page' : undefined}
+            onClick={() => setOpen(false)}
+          >
             Services
           </Link>
           <Link
@@ -53,6 +57,13 @@ export function SiteHeader({ businessName }: { businessName: string }) {
           </Link>
           <Link href="/#visit" onClick={() => setOpen(false)}>
             Visit
+          </Link>
+          <Link
+            href="/account"
+            aria-current={pathname === '/account' ? 'page' : undefined}
+            onClick={() => setOpen(false)}
+          >
+            Account
           </Link>
         </nav>
         <div className="nav-cta">

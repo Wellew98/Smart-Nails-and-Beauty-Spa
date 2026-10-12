@@ -22,8 +22,8 @@ const HEADINGS: { match: string; label: string }[] = [
   { match: 'special package', label: 'Special Package' },
   { match: 'gel', label: 'Gel Application' },
   { match: 'eyelash extensions', label: 'Eyelash Extensions' },
-  { match: 'women waxing', label: 'Waxing — Women Face' },
-  { match: 'body waxing', label: 'Waxing — Body' },
+  { match: 'women waxing', label: 'Waxing: Women face' },
+  { match: 'body waxing', label: 'Waxing: Body' },
   { match: 'men services', label: 'Men Services' },
 ];
 
@@ -41,7 +41,7 @@ const unsplash = (id: string) => `https://images.unsplash.com/${id}?w=800&q=80&a
  * service cards use (already checked against what they show), keyed by the
  * group's display label. Anything unrecognised gets the products shot.
  */
-const GROUP_IMAGES: Record<string, { img: string; alt: string }> = {
+export const GROUP_IMAGES: Record<string, { img: string; alt: string }> = {
   Makeup: {
     img: unsplash('photo-1487412947147-5cebf100ffc2'),
     alt: 'Makeup beauty close-up',
@@ -82,11 +82,11 @@ const GROUP_IMAGES: Record<string, { img: string; alt: string }> = {
     img: unsplash('photo-1522337660859-02fbefca4702'),
     alt: 'Pink gel nails finish',
   },
-  'Waxing — Women Face': {
+  'Waxing: Women face': {
     img: unsplash('photo-1512496015851-a90fb38ba796'),
     alt: 'Professional waxing and skincare products',
   },
-  'Waxing — Body': {
+  'Waxing: Body': {
     img: unsplash('photo-1512496015851-a90fb38ba796'),
     alt: 'Professional waxing and skincare products',
   },

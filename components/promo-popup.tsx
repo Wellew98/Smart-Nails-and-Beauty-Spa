@@ -55,11 +55,11 @@ export function PromoPopup({ serviceId }: { serviceId: string | null }) {
         <button className="promo-close" type="button" aria-label="Close promotion" onClick={close}>
           ×
         </button>
-        <p className="eyebrow light">Limited signature offer</p>
+        <p className="eyebrow light">Three treatments, one booking</p>
         <h2 id="promoTitle">
-          Special Package — <span className="price">R500</span>
+          Special package, <span className="price">R500</span>
         </h2>
-        <p>Massage + Facial + Pedicure (Gel Hands + Gel Feet). One booking, full glow.</p>
+        <p>Massage, facial and pedicure, with gel on hands and feet. One booking covers all three.</p>
         <div className="offer-btns">
           <Link
             className="btn btn-light"

@@ -17,11 +17,14 @@ export default async function ContactPage() {
   return (
     <div className="mx-auto max-w-5xl px-5 pt-14 pb-4 sm:pt-20">
       <p className="text-xs tracking-[0.22em] text-gilt-600 uppercase">Contact</p>
-      <h1 className="font-display mt-4 max-w-[14ch] text-[2.5rem] leading-[1] font-semibold text-aubergine-900 sm:text-6xl">
+      <h1
+        className="font-display mt-4 max-w-[14ch] text-[2.5rem] leading-[1] font-semibold text-aubergine-900 sm:text-6xl"
+        data-split
+      >
         Booking online is quickest. But we do answer the phone.
       </h1>
 
-      <div className="mt-12 grid gap-12 sm:grid-cols-2 sm:gap-16">
+      <div className="mt-12 grid gap-12 sm:grid-cols-2 sm:gap-16" data-reveal>
         <div>
           {/* NAP, rendered from the single businesses row (§8). */}
           <h2 className="text-xs tracking-[0.18em] text-gilt-600 uppercase">Find us</h2>
@@ -86,7 +89,7 @@ export default async function ContactPage() {
                   <dd
                     className={`tabular font-mono text-sm ${entry ? 'text-mauve-600' : 'text-mauve-400'}`}
                   >
-                    {entry ? `${entry.opens} – ${entry.closes}` : 'Closed'}
+                    {entry ? `${entry.opens} to ${entry.closes}` : 'Closed'}
                   </dd>
                 </div>
               );
@@ -104,7 +107,7 @@ export default async function ContactPage() {
       </div>
 
       {business.address && (
-        <div className="mt-16">
+        <div className="mt-16" data-reveal>
           <h2 className="text-xs tracking-[0.18em] text-gilt-600 uppercase">Getting here</h2>
           <div className="mt-4 overflow-hidden rounded-2xl border border-blush-200">
             <iframe

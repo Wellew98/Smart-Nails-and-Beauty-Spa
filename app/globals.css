@@ -19,9 +19,10 @@
 --------------------------------------------------------------------------- */
 
 @theme {
-  --font-display: var(--font-fraunces), Georgia, 'Times New Roman', serif;
-  --font-sans: var(--font-karla), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  /* The display, body and script faces loaded in app/layout.tsx. */
+  --font-display: var(--font-cormorant), Georgia, 'Times New Roman', serif;
+  --font-sans: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
   /* Reserved for the logo mark. Nothing else on the site is set in script. */
   --font-script: var(--font-great-vibes), 'Snell Roundhand', cursive;
 
@@ -164,6 +165,30 @@ body {
 
 .scrollbar-none::-webkit-scrollbar {
   display: none;
+}
+
+/* Split-word scaffolding for [data-split] headings (see
+   components/motion.tsx). The unsplit heading stays in the DOM for assistive
+   technology and no-JS readers; the .w spans are decorative. */
+[data-split] .w {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+[data-split] .w > span {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Lenis: the one smooth-scroll engine. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
 }
 
 /* Focus that is visible on blush and on lacquer alike. */

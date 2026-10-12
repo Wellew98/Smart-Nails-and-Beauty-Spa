@@ -873,3 +873,75 @@ export async function markAppointmentStatus(options: {
     return rows.rows[0] as unknown as Appointment;
   });
 }
+
+// ---------------------------------------------------------------------------
+// Cron queries for automated emails.
+// The crons stamp send-state ONLY on a confirmed send, so a failed mail
+// is retried on the next run instead of silently skipped.
+// ---------------------------------------------------------------------------
+
+/** Confirmed appointments starting inside (now, now + 24h] with no reminder yet. */
+export async function getReminderDue(
+  businessId: string,
+  now: Date,
+): Promise<AppointmentDetail[]> {
+  const horizon = new Date(now.getTime() + 24 * 60 * 60_000);
+  return query<AppointmentDetail>(
+    `${DETAIL_SELECT}
+      where a.business_id = $1
+        and a.status = 'confirmed'
+        and a.starts_at > $2
+        and a.starts_at <= $3
+        and a.reminder_sent_at is null
+        and nullif(btrim(c.email), '') is not null
+      order by a.starts_at`,
+    [businessId, now.toISOString(), horizon.toISOString()],
+  );
+}
+
+export async function stampReminderSent(appointmentId: string): Promise<void> {
+  await query('update appointments set reminder_sent_at = now() where id = $1', [appointmentId]);
+}
+
+export interface WinbackCandidate {
+  id: string;
+  name: string;
+  email: string;
+  last_visit: Date;
+}
+
+/**
+ * Customers whose last visit ended over 14 days ago, with an email address,
+ * no win-back sent yet, and nothing upcoming on the diary. Erased rows can
+ * never qualify: their email is null and their phone carries the prefix.
+ */
+export async function getWinbackCandidates(
+  businessId: string,
+  now: Date,
+): Promise<WinbackCandidate[]> {
+  const cutoff = new Date(now.getTime() - 14 * 24 * 60 * 60_000);
+  return query<WinbackCandidate>(
+    `select c.id, c.name, c.email, max(a.ends_at) as last_visit
+       from customers c
+       join appointments a on a.customer_id = c.id
+      where c.business_id = $1
+        and nullif(btrim(c.email), '') is not null
+        and c.winback_sent_at is null
+        and c.phone not like '${ERASED_PHONE_PREFIX}%'
+        and a.status in ('completed', 'confirmed', 'pending', 'no_show')
+      group by c.id, c.name, c.email
+     having max(a.ends_at) < $2
+        and not exists (
+          select 1 from appointments up
+           where up.customer_id = c.id
+             and up.status in ('pending', 'confirmed')
+             and up.starts_at >= $3
+        )
+      order by last_visit`,
+    [businessId, cutoff.toISOString(), now.toISOString()],
+  );
+}
+
+export async function stampWinbackSent(customerId: string): Promise<void> {
+  await query('update customers set winback_sent_at = now() where id = $1', [customerId]);
+}

@@ -41,7 +41,7 @@ import type { BookingAttachment, ChatAttachment } from '@/lib/ai/types';
  */
 
 const GREETING =
-  "Hi! I can help you find a treatment, check what's free, or answer anything about the studio. What are you after?";
+  "Hi! I can help with treatments and times. What are you after?";
 
 interface ChatResponse {
   reply: string;

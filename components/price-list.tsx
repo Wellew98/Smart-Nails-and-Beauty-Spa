@@ -36,7 +36,7 @@ export function PriceList({ groups }: { groups: PriceGroup[] }) {
       <input
         id="priceSearch"
         type="search"
-        placeholder="Search — try gel, facial, wax…"
+        placeholder="Search: try gel, facial, wax…"
         aria-label="Search prices"
         value={query}
         onChange={(event) => setQuery(event.target.value)}

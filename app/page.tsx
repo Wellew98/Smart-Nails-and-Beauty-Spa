@@ -6,9 +6,9 @@ import { findSpecialPackageId } from '@/lib/flyer-prices';
 import { REVIEW_URL } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: 'Smart Nails and Beauty Spa | Beauty Begins Here – Glenanda, Johannesburg South',
+  title: 'Smart Nails and Beauty Spa | Beauty Begins Here, Glenanda, Johannesburg South',
   description:
-    'Smart Nails and Beauty Spa, 75 Amanda Avenue, Glenanda, Johannesburg South. Nails, Pedicure, Massage, Facials, Lashes, Waxing, Makeup and Body Treatments. Book online in under a minute. Mon–Sat 8am–8pm, Sun 9am–4pm.',
+    'Smart Nails and Beauty Spa, 75 Amanda Avenue, Glenanda, Johannesburg South. Nails, Pedicure, Massage, Facials, Lashes, Waxing, Makeup and Body Treatments. Book online in under a minute. Mon to Sat 8am to 8pm, Sun 9am to 4pm.',
 };
 
 const SERVICE_CARDS = [
@@ -82,32 +82,32 @@ const GALLERY = [
   {
     img: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&q=80&auto=format&fit=crop',
     alt: 'Warm oil spa massage ritual',
-    caption: 'Spa ritual — warm oils & massage',
+    caption: 'Warm oils and massage',
   },
   {
     img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=800&q=80&auto=format&fit=crop',
     alt: 'Beautiful Black woman natural glow',
-    caption: 'Glow — beauty for our market',
+    caption: 'Glow',
   },
   {
     img: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=800&q=80&auto=format&fit=crop',
     alt: 'Pink gel nails manicure finish',
-    caption: 'Nails — pink gel finish',
+    caption: 'Pink gel finish',
   },
   {
     img: 'https://images.unsplash.com/photo-1619607146034-5a05296c8f9a?w=800&q=80&auto=format&fit=crop',
     alt: 'Wall of nail polish bottles on gold shelves in a salon',
-    caption: 'Colour wall — the polish range',
+    caption: 'The polish range',
   },
   {
     img: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&q=80&auto=format&fit=crop',
     alt: 'Professional beauty products and brushes',
-    caption: 'Artistry — pro products & tools',
+    caption: 'Pro products and tools',
   },
   {
     img: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800&q=80&auto=format&fit=crop',
     alt: 'Makeup beauty close-up',
-    caption: 'Confidence — finished look',
+    caption: 'The finished look',
   },
 ] as const;
 
@@ -127,10 +127,10 @@ export default async function HomePage() {
   return (
     <>
       {/* HERO */}
-      <section className="hero">
+      <section className="hero" data-hero aria-labelledby="hero-heading">
         <div className="hero-inner">
           <div className="hero-copy">
-            <div className="sun">
+            <div className="sun" data-hero-item>
               <img
                 className="hero-logo"
                 src="/logo.webp"
@@ -139,30 +139,33 @@ export default async function HomePage() {
                 height="220"
               />
             </div>
-            <p className="fly-beauty">BEAUTY</p>
-            <p className="fly-script">
+            <p className="fly-beauty" data-hero-item id="hero-heading">
+              BEAUTY
+            </p>
+            <p className="fly-script" data-hero-item aria-label="begins here">
               begins here<span className="heart">♥</span>
             </p>
-            <p className="fly-rules">
+            <p className="fly-rules" data-hero-item>
               <span>RELAX</span>
               <i>•</i>
               <span>REJUVENATE</span>
               <i>•</i>
               <span>GLOW</span>
             </p>
-            <p className="lede">
+            <p className="lede" data-hero-item>
               <strong>BEAUTY. CONFIDENCE. YOU.</strong>
             </p>
-              <ul className="trust">
+              <ul className="trust" data-hero-item>
                 <li>✓ Appointments + walk-ins</li>
                 <li>✓ Everyone welcome</li>
               </ul>
           </div>
-          <div className="hero-card">
+          <div className="hero-card" data-hero-item>
             <Link
               className="hero-photo"
               href="/book"
               aria-label="Book your appointment today online"
+              data-hero-media
             >
               <svg
                 className="hero-curve"
@@ -189,7 +192,7 @@ export default async function HomePage() {
                 src="/hero-hands.webp"
                 alt="Pink almond manicure with orchid, candle and spa stones"
               />
-              <span className="badge-cover" aria-hidden="true">
+              <span className="badge-cover" aria-hidden="true" data-hero-badge>
                 <span className="b-heart">♥</span>
                 <span className="b-top">BOOK YOUR</span>
                 <span className="b-mid">APPOINTMENT</span>
@@ -202,17 +205,39 @@ export default async function HomePage() {
 
       {specialId ? <PromoPopup serviceId={specialId} /> : null}
 
+      {/* MARQUEE — the menu in one breath, pacing hero into services.
+          Two identical halves, each at least a viewport wide with items
+          spaced evenly, so the bar reads full on any screen and the -50%
+          loop stays seamless. */}
+      <div className="marquee" aria-hidden="true">
+        <p className="marquee-track">
+          {[0, 1].map((half) => (
+            <span className="marquee-half" key={half}>
+              {['Nails', 'Pedicure', 'Massage', 'Facials', 'Lashes', 'Waxing', 'Makeup', 'Body'].map(
+                (item) => (
+                  <span key={item}>{item}</span>
+                ),
+              )}
+            </span>
+          ))}
+        </p>
+      </div>
+
       {/* SERVICES GRID */}
       <section className="section" id="services">
         <div className="wrap">
-          <p className="eyebrow">What we do</p>
-          <h2>Services</h2>
+          <p className="eyebrow" data-reveal>
+            What we do
+          </p>
+          <h2 data-split>Services</h2>
           <div className="grid8">
-            {SERVICE_CARDS.map((card) => (
+            {SERVICE_CARDS.map((card, index) => (
               <Link
                 className="svc"
                 key={card.name}
                 href={`/book?category=${encodeURIComponent(card.category)}`}
+                data-reveal
+                data-reveal-delay={(index % 4) * 0.07}
               >                <img src={card.img} alt={card.alt} loading="lazy" />
                 <h3>{card.name}</h3>
                 <p>{card.line}</p>
@@ -225,9 +250,9 @@ export default async function HomePage() {
 
       {/* PRICES POINTER — the full list lives on its own page */}
       <section className="section prices" id="prices-teaser">
-        <div className="wrap">
+        <div className="wrap" data-reveal>
           <p className="eyebrow">Transparent pricing</p>
-          <h2>Full price list</h2>
+          <h2 data-split>Full price list</h2>
           <div className="offer-btns">
             <Link className="btn btn-pink" href="/book">
               Book online
@@ -242,11 +267,13 @@ export default async function HomePage() {
       {/* GALLERY */}
       <section className="section" id="gallery">
         <div className="wrap">
-          <p className="eyebrow">Inspiration</p>
-          <h2>Feel the experience</h2>
+          <p className="eyebrow" data-reveal>
+            Inspiration
+          </p>
+          <h2 data-split>A first look</h2>
           <div className="gal">
-            {GALLERY.map((shot) => (
-              <figure key={shot.img}>
+            {GALLERY.map((shot, index) => (
+              <figure key={shot.img} data-reveal data-reveal-delay={(index % 3) * 0.08}>
                 <img src={shot.img} alt={shot.alt} loading="lazy" />
                 <figcaption>{shot.caption}</figcaption>
               </figure>
@@ -261,9 +288,9 @@ export default async function HomePage() {
           lib/reviews.ts, this becomes the screenshot stack with REVIEW_URL as
           its "read them all" target. */}
       <section className="section tint" id="reviews">
-        <div className="wrap narrow">
+        <div className="wrap narrow" data-reveal>
           <p className="eyebrow">Reviews</p>
-          <h2>Been to Smart Nails?</h2>
+          <h2 data-split>Been to Smart Nails?</h2>
           <p className="sub">
             We are new on Google, and every review helps a Glenanda neighbour book with
             confidence. It takes about a minute.
@@ -281,14 +308,14 @@ export default async function HomePage() {
 
       {/* FAQ */}
       <section className="section" id="faq">
-        <div className="wrap narrow">
+        <div className="wrap narrow" data-reveal>
           <p className="eyebrow">Good to know</p>
-          <h2>FAQs</h2>
+          <h2 data-split>FAQs</h2>
           <details open>
             <summary>Do I need an appointment?</summary>
             <p>
               Appointments may be required, but walk-ins are welcome when space allows.{' '}
-              <Link href="/book">Book online</Link> to secure your slot in seconds.
+              <Link href="/book">Book online</Link> and the time is yours.
             </p>
           </details>
           <details>
@@ -297,7 +324,7 @@ export default async function HomePage() {
           </details>
           <details>
             <summary>What are your hours?</summary>
-            <p>Monday–Saturday 8am–8pm, Sunday 9am–4pm.</p>
+            <p>Monday to Saturday 8am to 8pm, Sunday 9am to 4pm.</p>
           </details>
           <details>
             <summary>Do you do men&apos;s services?</summary>
@@ -315,11 +342,11 @@ export default async function HomePage() {
 
       {/* VISIT */}
       <section className="section tint" id="visit">
-        <div className="wrap visit-grid">
+        <div className="wrap visit-grid" data-reveal>
           <div>
             <p className="eyebrow">Visit us</p>
-            <h2>75 Amanda Avenue, Glenanda</h2>
-            <p>Johannesburg South • Mon–Sat 8–8 • Sun 9–4</p>
+            <h2 data-split>75 Amanda Avenue, Glenanda</h2>
+            <p>Johannesburg South. Mon to Sat, 8 to 8. Sun, 9 to 4.</p>
             <div className="visit-btns">
               <Link className="btn btn-pink" href="/book">
                 Book online
@@ -338,7 +365,7 @@ export default async function HomePage() {
             </div>
           </div>
           <iframe
-            title="Map — Smart Nails 75 Amanda Ave Glenanda"
+            title="Map, Smart Nails 75 Amanda Ave Glenanda"
             src="https://www.google.com/maps?q=75%20Amanda%20Avenue%20Glenanda%20Johannesburg%20South&output=embed"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"

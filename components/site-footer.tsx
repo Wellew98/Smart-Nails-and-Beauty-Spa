@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { CATEGORY_CONTENT } from '@/lib/category-content';
 import { formatPhoneForDisplay } from '@/lib/phone';
 import type { Business } from '@/lib/types';
 
@@ -22,14 +23,14 @@ export function SiteFooter({
     (['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const)[day];
 
   // Collapse consecutive days with identical hours into ranges, so six
-  // identical weekdays read as one span: "Mon–Sat 08:00–20:00 • Sun 09:00–16:00".
+  // identical weekdays read as one span: "Mon to Sat 08:00 to 20:00 • Sun 09:00 to 16:00".
   // Order is Monday-first; the grouping follows whatever the DB actually holds.
   const hoursLine = (() => {
     const days = [1, 2, 3, 4, 5, 6, 0];
     const spans: { from: number; to: number; label: string }[] = [];
     for (const day of days) {
       const entry = byDay.get(day);
-      const label = entry ? `${entry.opens}–${entry.closes}` : 'Closed';
+      const label = entry ? `${entry.opens} to ${entry.closes}` : 'Closed';
       const last = spans[spans.length - 1];
       if (last && last.label === label && day === last.to + 1) last.to = day;
       else spans.push({ from: day, to: day, label });
@@ -38,7 +39,7 @@ export function SiteFooter({
       .map((span) =>
         span.from === span.to
           ? `${dayName(span.from)} ${span.label}`
-          : `${dayName(span.from)}–${dayName(span.to)} ${span.label}`,
+          : `${dayName(span.from)} to ${dayName(span.to)} ${span.label}`,
       )
       .join(' • ');
   })();
@@ -67,13 +68,21 @@ export function SiteFooter({
         </div>
 
         <div className="flinks">
-          <Link href="/#services">Services</Link>
+          <Link href="/treatments">Services</Link>
           <Link href="/prices">Prices</Link>
           <Link href="/book">Book online</Link>
           <Link href="/#visit">Visit</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/admin">Staff login</Link>
         </div>
+        {/* Every indexed category page, linked sitewide for crawlers. */}
+        <nav className="flinks" aria-label="Treatments" style={{ marginTop: '0.4rem' }}>
+          {CATEGORY_CONTENT.map((content) => (
+            <Link key={content.slug} href={`/treatments/${content.slug}`}>
+              {content.label}
+            </Link>
+          ))}
+        </nav>
         <small style={{ paddingBottom: chatWidgetPresent ? '4rem' : undefined }}>
           © {new Date().getFullYear()} {business.name} • Thank you for choosing us ♥
         </small>

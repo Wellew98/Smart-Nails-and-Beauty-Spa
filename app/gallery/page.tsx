@@ -42,7 +42,10 @@ export default async function GalleryPage() {
   return (
     <div className="mx-auto max-w-5xl px-5 pt-14 pb-4 sm:pt-20">
       <p className="text-xs tracking-[0.22em] text-gilt-600 uppercase">Gallery</p>
-      <h1 className="font-display mt-4 max-w-[13ch] text-[2.5rem] leading-[1] font-semibold text-aubergine-900 sm:text-6xl">
+      <h1
+        className="font-display mt-4 max-w-[13ch] text-[2.5rem] leading-[1] font-semibold text-aubergine-900 sm:text-6xl"
+        data-split
+      >
         {SITE.gallery.lead}
       </h1>
       <p className="mt-5 max-w-lg text-[1.05rem] leading-relaxed text-mauve-500">
@@ -53,7 +56,7 @@ export default async function GalleryPage() {
       {/* A masonry-ish grid: the shots are mixed portrait and landscape, so
           each tile fixes its own aspect ratio and crops rather than letting one
           landscape photo punch a hole in the row. */}
-      <ul className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+      <ul className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4" data-reveal>
         {NAIL_PHOTOS.map((photo, index) => (
           <li key={photo.src} className="overflow-hidden rounded-xl bg-blush-100">
             <Image
@@ -75,7 +78,7 @@ export default async function GalleryPage() {
       </p>
 
       {/* ---------------- the room ---------------- */}
-      <section aria-labelledby="studio-heading" className="mt-20 sm:mt-28">
+      <section aria-labelledby="studio-heading" className="mt-20 sm:mt-28" data-reveal>
         <h2
           id="studio-heading"
           className="font-display text-2xl font-semibold text-aubergine-900"
@@ -112,7 +115,11 @@ export default async function GalleryPage() {
       </section>
 
       {/* ---------------- the colour range ---------------- */}
-      <section aria-labelledby="range-heading" className="mt-20 border-t border-gilt-200/70 pt-12 sm:mt-28">
+      <section
+        aria-labelledby="range-heading"
+        className="mt-20 border-t border-gilt-200/70 pt-12 sm:mt-28"
+        data-reveal
+      >
         <h2 id="range-heading" className="font-display text-2xl font-semibold text-aubergine-900">
           A colour for every treatment
         </h2>

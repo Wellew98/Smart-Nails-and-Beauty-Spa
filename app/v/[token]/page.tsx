@@ -96,7 +96,7 @@ export default async function VoucherPage({ params }: { params: Promise<{ token:
       )}
 
       <p className="mt-6 text-sm leading-relaxed text-mauve-600">
-        This voucher can be given to someone else, and used across more than one visit — it is
+        This voucher can be given to someone else, and used across more than one visit. It is
         not tied to who bought it.
       </p>
 

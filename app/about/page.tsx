@@ -16,11 +16,14 @@ export default async function AboutPage() {
     <div className="mx-auto max-w-5xl px-5 pt-14 pb-4 sm:pt-20">
       <p className="text-xs tracking-[0.22em] text-gilt-600 uppercase">About</p>
 
-      <h1 className="font-display mt-4 max-w-[15ch] text-[2.5rem] leading-[1] font-semibold text-aubergine-900 sm:text-6xl">
+      <h1
+        className="font-display mt-4 max-w-[15ch] text-[2.5rem] leading-[1] font-semibold text-aubergine-900 sm:text-6xl"
+        data-split
+      >
         {SITE.about.lead}
       </h1>
 
-      <div className="mt-12 grid gap-12 sm:grid-cols-[1.4fr_1fr] sm:gap-16">
+      <div className="mt-12 grid gap-12 sm:grid-cols-[1.4fr_1fr] sm:gap-16" data-reveal>
         <div className="space-y-6">
           {SITE.about.body.map((paragraph) => (
             <p key={paragraph.slice(0, 24)} className="text-[1.05rem] leading-relaxed text-mauve-600">
@@ -42,7 +45,7 @@ export default async function AboutPage() {
         </div>
       </div>
 
-      <div className="mt-16 border-t border-gilt-200/70 pt-10">
+      <div className="mt-16 border-t border-gilt-200/70 pt-10" data-reveal>
         <h2 className="font-display text-2xl font-semibold text-aubergine-900">
           What you can count on
         </h2>

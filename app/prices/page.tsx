@@ -22,14 +22,18 @@ export default async function PricesPage() {
   const groups = groupForFlyer(services);
 
   return (
-    <section className="section prices" id="prices">
+    <section className="section prices" id="prices" data-hero>
       <div className="wrap">
-        <p className="eyebrow">Transparent pricing</p>
-        <h2>Full price list</h2>
-        <p className="sub">Price-only, exactly as our flyer. Tap any item to book it online.</p>
+        <p className="eyebrow" data-hero-item>
+          Transparent pricing
+        </p>
+        <h2 data-split>Full price list</h2>
+        <p className="sub" data-hero-item>
+          Price-only, exactly as our flyer. Tap any item to book it online.
+        </p>
         <PriceList groups={groups} />
         <p className="fine">
-          Appointments may be required. Prices as per in-store flyer — the booking page confirms
+          Appointments may be required. Prices as per in-store flyer; the booking page confirms
           the final price before you commit.
         </p>
       </div>
