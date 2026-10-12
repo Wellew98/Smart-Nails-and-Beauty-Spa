@@ -93,22 +93,43 @@ export default async function CategoryPage({
   return (
     <section className="section" id={`treatments-${content.slug}`} data-hero>
       <div className="wrap">
-        <p className="eyebrow" data-hero-item>
-          {content.label} · {SERVICE_AREAS.join(' · ')}
-        </p>
-        <h2 data-split>
-          {content.label} in {SERVICE_AREAS[0]}
-        </h2>
-        <p className="sub" data-hero-item>
-          {content.tagline} {priceRange} · {durationRange} · {business.phone}
+        <div className="board">
+          <p className="eyebrow" data-hero-item>
+            {content.label} · {SERVICE_AREAS.join(' · ')}
+          </p>
+          <h2 data-split>
+            {content.label} in {SERVICE_AREAS[0]}
+          </h2>
+          <p className="sub" data-hero-item>
+            {content.tagline} {priceRange} · {durationRange} · {business.phone}
+          </p>
+        </div>
+
+        <ul className="tickets" data-reveal>
+          {mine.map((service) => {
+            const slug = slugFor(service.id) ?? slugify(service.name);
+            return (
+              <li key={service.id} className="ticket">
+                <Link href={`/treatments/${content.slug}/${slug}`}>
+                  <span className="t-name">{service.name}</span>
+                  <span className="m-dots" aria-hidden="true" />
+                  <span className="t-price">{formatZar(service.price_cents)}</span>
+                  <span className="t-time">about {service.duration_minutes} min</span>
+                  <span className="t-go" aria-hidden="true">
+                    ›
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+        <p>
+          <Link className="btn btn-dark" href="/book">
+            Book online
+          </Link>
         </p>
         {image && (
-          <img
-            src={image.img}
-            alt={image.alt}
-            loading="lazy"
-            style={{ width: '100%', borderRadius: '16px', margin: '1rem 0' }}
-          />
+          <img className="board-img" src={image.img} alt={image.alt} loading="lazy" />
         )}
 
         {content.intro.map((paragraph) => (
@@ -122,28 +143,6 @@ export default async function CategoryPage({
           ))}
         </ul>
 
-        <h3>
-          {content.label} treatments ({mine.length})
-        </h3>
-        <ul>
-          {mine.map((service) => {
-            const slug = slugFor(service.id) ?? slugify(service.name);
-            return (
-              <li key={service.id}>
-                <Link href={`/treatments/${content.slug}/${slug}`}>
-                  {service.name}, from {formatZar(service.price_cents)}, about{' '}
-                  {service.duration_minutes} minutes
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-        <p>
-          <Link className="btn btn-dark" href="/book">
-            Book online
-          </Link>
-        </p>
-
         <h3>Good to know</h3>
         <ul>
           {content.goodToKnow.map((item) => (
@@ -152,14 +151,12 @@ export default async function CategoryPage({
         </ul>
 
         <h3>Questions, answered</h3>
-        <dl>
-          {faqs.map((faq) => (
-            <div key={faq.q}>
-              <dt>{faq.q}</dt>
-              <dd>{faq.a}</dd>
-            </div>
-          ))}
-        </dl>
+        {faqs.map((faq) => (
+          <details key={faq.q} className="faq">
+            <summary>{faq.q}</summary>
+            <p>{faq.a}</p>
+          </details>
+        ))}
 
         <h3>More treatments</h3>
         <ul>
