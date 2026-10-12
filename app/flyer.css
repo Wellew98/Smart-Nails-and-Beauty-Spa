@@ -131,6 +131,19 @@ summary{cursor:pointer;font-weight:600}
 .visit-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;align-items:center}
 .visit-btns{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem}
 .visit-grid iframe{width:100%;height:320px;border:0;border-radius:18px}
+/* member visits (account page): one big card per booking */
+.visit-list{list-style:none;margin:1.4rem 0 0;padding:0;display:grid;gap:1rem}
+.visit{background:var(--ivory);border:1px solid var(--line);border-radius:18px;padding:1.1rem 1.2rem;display:flex;gap:1.1rem;align-items:flex-start}
+.visit-date{flex:none;width:3.4rem;text-align:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:.5rem 0}
+.visit-date strong{display:block;font-size:1.5rem;line-height:1;color:var(--ink)}
+.visit-date span{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.visit-body{flex:1;min-width:0}
+.visit-top{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.visit-top strong{font-size:1.25rem}
+.pill{font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:.2rem .7rem;background:#fff}
+.pill-live{color:var(--pink-d);border-color:var(--pink)}
+.visit-meta{margin:.35rem 0 .9rem;color:var(--muted)}
+.account-head{display:flex;align-items:center;justify-content:space-between;gap:1rem}
 /* footer */
 footer{background:#141114;color:#d8cdd2}
 .foot{display:flex;flex-direction:column;gap:.8rem;padding:1.6rem 20px}
