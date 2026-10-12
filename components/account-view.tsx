@@ -40,7 +40,12 @@ export function AccountView({ visits }: { visits: Visit[] }) {
           ) : (
             <ul className="visit-list">
               {visits.map((visit) => {
-                const upcoming = visit.status === 'confirmed' || visit.status === 'pending';
+                // Status alone lies: nothing ever flips a past appointment to
+                // completed, so a visit that already happened would read
+                // "Upcoming" forever. The date is the truth here.
+                const inPast = new Date(visit.starts_at).getTime() < Date.now();
+                const upcoming =
+                  (visit.status === 'confirmed' || visit.status === 'pending') && !inPast;
                 // Salon is in Johannesburg; visits render in its day, not the
                 // phone's timezone, so the date badge matches the diary.
                 const day = new Date(visit.starts_at).toLocaleDateString('en-ZA', {
@@ -66,13 +71,13 @@ export function AccountView({ visits }: { visits: Visit[] }) {
                     <div className="visit-body">
                       <div className="visit-top">
                         <strong>{visit.service_name}</strong>
-                        <span className={`pill${upcoming ? ' pill-live' : ''}`}>
-                          {upcoming
-                            ? 'Upcoming'
-                            : visit.status === 'completed'
-                              ? 'Done'
-                              : visit.status}
-                        </span>
+              <span className={`pill${upcoming ? ' pill-live' : ''}`}>
+                {upcoming
+                  ? 'Upcoming'
+                  : visit.status === 'completed' || inPast
+                    ? 'Done'
+                    : visit.status}
+              </span>
                       </div>
                       <p className="visit-meta">
                         {full} · with {visit.staff_name} ·{' '}
