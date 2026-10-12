@@ -75,6 +75,11 @@ export function LoginForm() {
       >
         {busy ? 'Signing in…' : 'Sign in'}
       </button>
+      <p className="text-center text-sm">
+        <a href="/admin/forgot" className="text-mauve-500 underline underline-offset-4">
+          Forgot the password?
+        </a>
+      </p>
     </form>
   );
 }
