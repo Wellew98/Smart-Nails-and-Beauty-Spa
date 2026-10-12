@@ -2,8 +2,9 @@ import { NextResponse, after } from 'next/server';
 import { z } from 'zod';
 import { getAppointmentById, getAppointmentByToken, rescheduleBooking } from '@/lib/booking';
 import { getActiveStaff, getBusiness } from '@/lib/public-data';
-import { sendCustomerConfirmation, sendOwnerNotification } from '@/lib/email';
-import { formatSlotLabel } from '@/lib/time';
+import { sendCustomerRescheduled, sendOwnerRescheduled } from '@/lib/email';
+import { formatDateTimeLabel, formatSlotLabel } from '@/lib/time';
+import { queueCustomerMoved, queueOwnerMoved } from '@/lib/wa-outbox';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,9 +76,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
 
   const detail = await getAppointmentById(result.appointment.id);
   if (detail) {
-    // After the response, so a slow mailer never delays the new time showing.
+    // The customer moved, not booked: both sides hear "from X to Y", by
+    // email and WhatsApp. After the response, as usual.
+    const oldStartsAt = new Date(appointment.starts_at);
+    const oldWhen = formatDateTimeLabel(oldStartsAt, appointment.business_timezone);
     after(async () => {
-      await Promise.all([sendCustomerConfirmation(detail), sendOwnerNotification(detail)]);
+      await Promise.all([
+        sendCustomerRescheduled(detail, oldWhen),
+        sendOwnerRescheduled(detail, oldWhen),
+        queueOwnerMoved(detail, oldStartsAt),
+        queueCustomerMoved(detail, oldStartsAt),
+      ]);
     });
   }
 

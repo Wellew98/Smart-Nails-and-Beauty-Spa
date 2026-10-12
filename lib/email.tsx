@@ -166,6 +166,78 @@ export async function sendCancellationNotice(appointment: AppointmentDetail): Pr
   );
 }
 
+export async function sendCustomerCancellation(appointment: AppointmentDetail): Promise<void> {
+  const when = formatDateTimeLabel(new Date(appointment.starts_at), appointment.business_timezone);
+  await deliver(
+    'customer cancellation',
+    appointment,
+    appointment.customer_email,
+    `Cancelled: your ${appointment.service_name} at ${appointment.business_name}`,
+    layout(
+      `It's cancelled, ${escapeHtml(appointment.customer_name.split(' ')[0])}`,
+      `<p style="margin:0 0 16px;font-size:14px;line-height:1.6">
+         Your ${escapeHtml(appointment.service_name)} on ${escapeHtml(when)} with
+         ${escapeHtml(appointment.staff_name)} is cancelled. Nothing to pay, nothing further to do.
+       </p>
+       ${detailRows(appointment)}
+       <p style="margin:20px 0 0;font-size:14px;line-height:1.6">
+         Want another time? <a href="${SITE_URL}/book" style="color:#c2185b">Book again</a>.
+       </p>`,
+    ),
+  );
+}
+
+export async function sendCustomerRescheduled(
+  appointment: AppointmentDetail,
+  oldWhen: string,
+): Promise<void> {
+  const url = manageUrl(appointment.manage_token);
+  const newWhen = formatDateTimeLabel(new Date(appointment.starts_at), appointment.business_timezone);
+  await deliver(
+    'customer rescheduled',
+    appointment,
+    appointment.customer_email,
+    `Moved: your ${appointment.service_name} at ${appointment.business_name}`,
+    layout(
+      `New time sorted, ${escapeHtml(appointment.customer_name.split(' ')[0])}`,
+      `<p style="margin:0 0 16px;font-size:14px;line-height:1.6">
+         Your ${escapeHtml(appointment.service_name)} moved from ${escapeHtml(oldWhen)} to
+         <strong>${escapeHtml(newWhen)}</strong>. The old time is free again.
+       </p>
+       ${detailRows(appointment)}
+       <p style="margin:20px 0 0;font-size:14px;line-height:1.6">
+         Need to move or cancel it again?
+         <a href="${url}" style="color:#c2185b">Manage your booking</a>.
+       </p>`,
+    ),
+  );
+}
+
+export async function sendOwnerRescheduled(
+  appointment: AppointmentDetail,
+  oldWhen: string,
+): Promise<void> {
+  const newWhen = formatDateTimeLabel(new Date(appointment.starts_at), appointment.business_timezone);
+  const party = appointment.party_size > 1 ? ` (party of ${appointment.party_size})` : '';
+  await deliver(
+    'owner rescheduled',
+    appointment,
+    process.env.OWNER_NOTIFICATION_EMAIL,
+    `Moved: ${appointment.service_name}, ${appointment.staff_name}${party}`,
+    layout(
+      'Booking moved',
+      `<p style="margin:0 0 16px;font-size:14px;line-height:1.6">
+         From ${escapeHtml(oldWhen)} to <strong>${escapeHtml(newWhen)}</strong>.
+       </p>
+       ${detailRows(appointment)}
+       <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:8px">
+         <tr><td style="padding:6px 0;color:#7a5a72">Customer</td><td style="padding:6px 0;text-align:right">${escapeHtml(appointment.customer_name)}</td></tr>
+         <tr><td style="padding:6px 0;color:#7a5a72">Phone</td><td style="padding:6px 0;text-align:right">${escapeHtml(formatPhoneForDisplay(appointment.customer_phone))}</td></tr>
+       </table>`,
+    ),
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Vouchers — spa-voucher-build-spec.md §6.1.
 // ---------------------------------------------------------------------------

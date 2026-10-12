@@ -58,9 +58,10 @@ export function ManageBooking({
 }) {
   const router = useRouter();
 
-  const [mode, setMode] = useState<'view' | 'reschedule' | 'confirm-cancel' | 'confirm-forget'>(
+  const [mode, setMode] = useState<'view' | 'reschedule' | 'confirm-move' | 'confirm-cancel' | 'confirm-forget'>(
     'view',
   );
+  const [pendingSlot, setPendingSlot] = useState<Slot | null>(null);
   const [date, setDate] = useState<string | null>(null);
   const [staffId, setStaffId] = useState<string>('any');
   const [slots, setSlots] = useState<Slot[]>([]);
@@ -362,6 +363,34 @@ export function ManageBooking({
             </button>
           </div>
         </div>
+      ) : mode === 'confirm-move' && pendingSlot ? (
+        <div className="mt-7 rounded-xl border border-blush-300 px-5 py-5">
+          <p className="text-[0.95rem] text-aubergine-900">
+            Move to {pendingSlot.label}
+            {staffId === 'any' && pendingSlot.staffName ? ` with ${pendingSlot.staffName}` : ''}?
+            Your current time goes back on the diary for someone else.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => moveTo(pendingSlot)}
+              disabled={busy}
+              className="rounded-full bg-lacquer-500 px-6 py-3 text-sm font-medium text-blush-50 hover:bg-lacquer-600 disabled:opacity-60"
+            >
+              {busy ? 'Moving…' : 'Yes, move it'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setPendingSlot(null);
+                setMode('reschedule');
+              }}
+              className="rounded-full border border-aubergine-900/25 px-6 py-3 text-sm hover:bg-blush-100"
+            >
+              Pick another
+            </button>
+          </div>
+        </div>
       ) : mode === 'reschedule' ? (
         <div className="mt-8">
           <div className="flex items-baseline justify-between gap-4">
@@ -432,7 +461,10 @@ export function ManageBooking({
                     <button
                       type="button"
                       disabled={busy}
-                      onClick={() => moveTo(slot)}
+                      onClick={() => {
+                        setPendingSlot(slot);
+                        setMode('confirm-move');
+                      }}
                       className="w-full rounded-xl border border-blush-200 px-2 py-3 transition-colors hover:border-aubergine-900 hover:bg-blush-100 disabled:opacity-50"
                     >
                       <span className="tabular block font-mono text-[0.95rem] leading-none text-aubergine-900">

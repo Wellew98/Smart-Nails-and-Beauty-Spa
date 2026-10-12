@@ -1,6 +1,7 @@
 import { NextResponse, after } from 'next/server';
 import { cancelBooking, getAppointmentByToken } from '@/lib/booking';
-import { sendCancellationNotice } from '@/lib/email';
+import { sendCancellationNotice, sendCustomerCancellation } from '@/lib/email';
+import { queueCustomerCancelled, queueOwnerCancelled } from '@/lib/wa-outbox';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,9 +30,15 @@ export async function POST(_request: Request, { params }: { params: Promise<{ to
   }
 
   // After the response: the customer has cancelled and should see that
-  // immediately, whatever the mail server is doing.
+  // immediately, whatever the mail server is doing. Both sides are told,
+  // by email and WhatsApp — previously only the owner heard, by email.
   after(async () => {
-    await sendCancellationNotice(appointment);
+    await Promise.all([
+      sendCancellationNotice(appointment),
+      sendCustomerCancellation(appointment),
+      queueOwnerCancelled(appointment),
+      queueCustomerCancelled(appointment),
+    ]);
   });
   return NextResponse.json({ ok: true });
 }
