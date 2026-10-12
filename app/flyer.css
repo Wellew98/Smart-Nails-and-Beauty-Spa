@@ -1,7 +1,6 @@
 :root{
   --ivory:#FFF9F7; --ink:#141114; --pink:#F06292; --pink-d:#d14d7c;
-  --blush:#F9D6E0; --gold:#C9A86A; --gold-deep:#8a6c33; --muted:#6f6369; --card:#fff; --line:#f1e2e7;
-  --plum:#2a1626;
+  --blush:#F9D6E0; --gold:#C9A86A; --muted:#6f6369; --card:#fff; --line:#f1e2e7;
 }
 *{box-sizing:border-box}html{scroll-behavior:smooth}
 /* Marketing pages carry full-bleed bands and animated elements (marquee,
@@ -145,41 +144,6 @@ summary{cursor:pointer;font-weight:600}
 .pill-live{color:var(--pink-d);border-color:var(--pink)}
 .visit-meta{margin:.35rem 0 .9rem;color:var(--muted)}
 .account-head{display:flex;align-items:center;justify-content:space-between;gap:1rem}
-/* treatments menu board: the site is a price menu that lives on the web.
-   Gold always means money, never decoration. Dot leaders map each name to
-   its price the way a printed menu does. */
-.board{background:var(--plum);color:var(--ivory);border-radius:20px;padding:1.7rem 1.5rem;margin:0 0 1.5rem}
-.board .eyebrow{color:var(--blush)}
-.board h2{color:#fff;font-size:clamp(2.6rem,9vw,4.2rem);margin:.2rem 0 .6rem}
-.board .sub{color:#e9d3dc;margin:0}
-.menu-index{list-style:none;margin:1.2rem 0 0;padding:0;display:grid}
-.menu-index li{border-bottom:1px solid var(--line)}
-.menu-index li:first-child{border-top:1px solid var(--line)}
-.menu-index a{display:flex;align-items:baseline;gap:.7rem;padding:.9rem .4rem;text-decoration:none;color:var(--ink);border-radius:12px}
-.menu-index a:hover{background:#fff}
-.menu-index a:hover .m-name,.tickets a:hover .t-name{color:var(--pink-d)}
-.m-lead{display:flex;flex-direction:column;gap:.1rem;min-width:0}
-.m-tag{font-size:.82rem;color:var(--muted)}
-.m-go{color:var(--pink);font-weight:700;font-size:1.1rem}
-.m-name{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.35rem;line-height:1.2}
-.m-dots{flex:1;border-bottom:2px dotted #d9b3c1;transform:translateY(-5px);min-width:1.25rem}
-.m-price{color:var(--gold-deep);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
-.tickets{list-style:none;margin:1.2rem 0 0;padding:0;display:grid;gap:.7rem}
-.ticket{background:var(--card);border:1px solid var(--line);border-radius:16px}
-.ticket a{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem .7rem;padding:1rem 1.1rem;text-decoration:none;color:var(--ink)}
-.ticket:hover{border-color:var(--pink)}
-.t-name{font-weight:600;font-size:1.05rem}
-.t-price{color:var(--gold-deep);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
-.t-time{color:var(--muted);font-size:.87rem;white-space:nowrap}
-.t-go{margin-left:auto;color:var(--pink);font-weight:700}
-.strip{display:flex;gap:.75rem;overflow-x:auto;scroll-snap-type:x mandatory;padding:.2rem .2rem 1.1rem;margin:1.4rem -.2rem 0}
-.strip a{flex:0 0 auto;width:7.25rem;scroll-snap-align:start;text-decoration:none;color:var(--ink)}
-.strip img{width:7.25rem;height:7.25rem;object-fit:cover;border-radius:14px;display:block}
-.strip span{display:block;font-size:.8rem;line-height:1.35;margin-top:.4rem;color:var(--muted)}
-details.faq{margin:.6rem 0}
-details.faq summary{cursor:pointer;font-weight:600}
-details.faq p{margin:.6rem 0 0}
-.board-img{width:100%;max-height:340px;object-fit:cover;border-radius:16px;margin:1.4rem 0 0;display:block}
 /* footer */
 footer{background:#141114;color:#d8cdd2}
 .foot{display:flex;flex-direction:column;gap:.8rem;padding:1.6rem 20px}

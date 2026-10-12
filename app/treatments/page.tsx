@@ -10,13 +10,14 @@ export const metadata: Metadata = {
     'Book online in under a minute.',
 };
 
-const unsplash = (id: string) => `https://images.unsplash.com/${id}?w=400&q=70&auto=format&fit=crop`;
+const unsplash = (id: string) => `https://images.unsplash.com/${id}?w=800&q=80&auto=format&fit=crop`;
 
 /**
- * Hub behind the 8 category pages: a menu index first (name, dot leaders,
- * price — the thing she came for), a small photo strip second. Ranges are
- * computed from the services rows, so the board can never drift from the
- * booking page. Owner photos replace the Unsplash strip when they land.
+ * Hub behind the 8 category pages: one card per category with its own photo,
+ * tagline and link, so visitors (and crawlers) reach every indexed page in
+ * one hop. Deliberately a different set from the homepage/prices shots
+ * (GROUP_IMAGES in lib/flyer-prices.ts) — every ID below was checked live
+ * before use. Owner photos replace all of these when they land.
  */
 const HUB_IMAGES: Record<string, { img: string; alt: string }> = {
   nails: {
@@ -57,49 +58,34 @@ export default function TreatmentsPage() {
   return (
     <section className="section" id="treatments" data-hero>
       <div className="wrap">
-        <div className="board">
-          <p className="eyebrow" data-hero-item>
-            Smart Nails and Beauty Spa · Glenanda
-          </p>
-          <h2 data-split>Treatments</h2>
-          <p className="sub" data-hero-item>
-            Eight things we do. Pick one to see treatments and prices, or skip
-            straight to booking. No account needed.
-          </p>
-        </div>
-        <ul className="menu-index" data-reveal>
-          {CATEGORY_CONTENT.map((content) => (
-            <li key={content.slug}>
-              <Link href={`/treatments/${content.slug}`}>
-                <span className="m-lead">
-                  <span className="m-name">{content.label}</span>
-                  <span className="m-tag">{content.tagline}</span>
-                </span>
-                <span className="m-dots" aria-hidden="true" />
-                <span className="m-go" aria-hidden="true">
-                  ›
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <div className="strip" data-reveal>
+        <p className="eyebrow" data-hero-item>
+          Smart Nails and Beauty Spa · Glenanda
+        </p>
+        <h2 data-split>Treatments</h2>
+        <p className="sub" data-hero-item>
+          Eight things we do, each with its own guide and honest prices. Tap a
+          category to read more, or skip straight to booking. No account needed.
+        </p>
+        <div className="price-groups" data-reveal>
           {CATEGORY_CONTENT.map((content) => {
             const image = HUB_IMAGES[content.slug];
-            if (!image) return null;
             return (
-              <Link
-                key={content.slug}
-                href={`/treatments/${content.slug}`}
-                tabIndex={-1}
-                aria-hidden="true"
-              >
-                {/* Plain img: remote Unsplash files, outside the next/image
-                    allowlist by design (no new hosts in config). Decorative:
-                    the index above already links every category. */}
-                <img src={image.img} alt="" loading="lazy" />
-                <span>{content.label}</span>
-              </Link>
+              <article key={content.slug} className="pgroup">
+                <Link href={`/treatments/${content.slug}`}>
+                  {image && (
+                    // Plain img: these are remote Unsplash files, outside the
+                    // next/image allowlist by design (no new hosts in config).
+                    <img
+                      className="pgroup-img"
+                      src={image.img}
+                      alt={image.alt}
+                      loading="lazy"
+                    />
+                  )}
+                  <h3>{content.label}</h3>
+                  <p className="fine">{content.tagline}</p>
+                </Link>
+              </article>
             );
           })}
         </div>

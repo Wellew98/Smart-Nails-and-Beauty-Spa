@@ -121,19 +121,17 @@ export default async function TreatmentServicePage({
   return (
     <section className="section" id="treatment" data-hero>
       <div className="wrap">
-        <div className="board">
-          <p className="eyebrow" data-hero-item>
-            {content.label} · {SERVICE_AREAS.join(' · ')}
-          </p>
-          <h2 data-split>
-            {current.name} in {SERVICE_AREAS[0]}
-          </h2>
-          <p className="sub" data-hero-item>
-            {formatZar(current.price_cents)} · about {current.duration_minutes} minutes ·{' '}
-            {business.phone}
-          </p>
-        </div>
-        <p data-reveal>
+        <p className="eyebrow" data-hero-item>
+          {content.label} · {SERVICE_AREAS.join(' · ')}
+        </p>
+        <h2 data-split>
+          {current.name} in {SERVICE_AREAS[0]}
+        </h2>
+        <p className="sub" data-hero-item>
+          From {formatZar(current.price_cents)} · about {current.duration_minutes} minutes ·{' '}
+          {business.phone}
+        </p>
+        <p>
           <Link className="btn btn-dark" href={`/book?service=${current.id}`}>
             Book {current.name}
           </Link>
@@ -145,36 +143,28 @@ export default async function TreatmentServicePage({
         </p>
 
         <h3>Questions, answered</h3>
-        {faqs.map((faq) => (
-          <details key={faq.q} className="faq">
-            <summary>{faq.q}</summary>
-            <p>{faq.a}</p>
-          </details>
-        ))}
+        <dl>
+          {faqs.map((faq) => (
+            <div key={faq.q}>
+              <dt>{faq.q}</dt>
+              <dd>{faq.a}</dd>
+            </div>
+          ))}
+        </dl>
 
         <h3>More treatments</h3>
-        <ul className="tickets">
+        <ul>
           {siblings.map((item) => (
-            <li key={item.slug} className="ticket">
+            <li key={item.slug}>
               <Link href={`/treatments/${item.content.slug}/${item.slug}`}>
-                <span className="t-name">{item.service.name}</span>
-                <span className="m-dots" aria-hidden="true" />
-                <span className="t-price">{formatZar(item.service.price_cents)}</span>
-                <span className="t-go" aria-hidden="true">
-                  ›
-                </span>
+                {item.service.name}
               </Link>
             </li>
           ))}
           {others.map((item) => (
-            <li key={`${item.content.slug}-${item.slug}`} className="ticket">
+            <li key={`${item.content.slug}-${item.slug}`}>
               <Link href={`/treatments/${item.content.slug}/${item.slug}`}>
-                <span className="t-name">{item.service.name}</span>
-                <span className="m-dots" aria-hidden="true" />
-                <span className="t-price">{formatZar(item.service.price_cents)}</span>
-                <span className="t-go" aria-hidden="true">
-                  ›
-                </span>
+                {item.service.name}
               </Link>
             </li>
           ))}
