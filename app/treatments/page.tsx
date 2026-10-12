@@ -99,9 +99,6 @@ export default function TreatmentsPage() {
             Book online
           </Link>
         </p>
-        <p className="fine">
-          <Link href="/prices">Full price list</Link>
-        </p>
       </div>
     </section>
   );
