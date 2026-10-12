@@ -112,6 +112,8 @@ h1{font-size:clamp(2.6rem,6vw,4.6rem)}h2{font-size:clamp(1.8rem,3.6vw,2.6rem)}
 .pgroup li a{display:flex;justify-content:space-between;gap:.8rem;text-decoration:none;color:var(--ink);padding:.5rem .4rem;border-radius:10px}
 .pgroup li a:hover{background:#fff}
 .pgroup strong{color:var(--pink-d);white-space:nowrap}
+.pgroup a .see-more{color:var(--pink-d);font-weight:600}
+.pgroup a:hover .see-more{text-decoration:underline}
 .pgroup .deal a{background:#ffe9f1;border:1px dashed var(--pink)}
 .fine{color:var(--muted);font-size:.88rem}
 /* gallery */

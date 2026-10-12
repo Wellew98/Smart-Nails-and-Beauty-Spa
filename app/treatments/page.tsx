@@ -84,6 +84,11 @@ export default function TreatmentsPage() {
                   )}
                   <h3>{content.label}</h3>
                   <p className="fine">{content.tagline}</p>
+                  <p className="fine">
+                    <span className="see-more" aria-hidden="true">
+                      See treatments ›
+                    </span>
+                  </p>
                 </Link>
               </article>
             );
