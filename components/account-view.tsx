@@ -93,9 +93,6 @@ export function AccountView({ visits }: { visits: Visit[] }) {
               })}
             </ul>
           )}
-          <p className="fine">
-            <Link href="/book">Book a new visit</Link>
-          </p>
         </Show>
       </div>
     </section>
