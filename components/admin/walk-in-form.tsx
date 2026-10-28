@@ -38,6 +38,7 @@ export function WalkInForm({
   const [time, setTime] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
 
   const [result, setResult] = useState<{
@@ -68,12 +69,14 @@ export function WalkInForm({
         time,
         name,
         phone,
+        email: email.trim() || undefined,
         notes: notes || undefined,
       });
       setResult(response as typeof result);
       if (response.ok) {
         setName('');
         setPhone('');
+        setEmail('');
         setNotes('');
         setTime('');
         setJustBooked(
@@ -127,6 +130,14 @@ export function WalkInForm({
           required
           placeholder="082 123 4567"
         />
+        <Field
+          label="Email"
+          type="email"
+          value={email}
+          onChange={setEmail}
+          placeholder="Optional"
+          hint="Optional. With an address, the client gets a confirmation they can keep."
+        />
         <Field label="Notes" value={notes} onChange={setNotes} placeholder="Optional" />
 
         {result && (
@@ -177,11 +188,13 @@ export function WalkInForm({
 
 function Field({
   label,
+  hint,
   value,
   onChange,
   ...rest
 }: {
   label: string;
+  hint?: string;
   value: string;
   onChange: (value: string) => void;
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>) {
@@ -198,6 +211,7 @@ function Field({
         className="mt-1.5 w-full rounded-xl border border-blush-300 bg-white px-4 py-3 text-base focus:border-aubergine-900 focus:outline-none"
         {...rest}
       />
+      {hint && <p className="mt-1 text-xs text-mauve-400">{hint}</p>}
     </div>
   );
 }

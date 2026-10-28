@@ -5,7 +5,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Swatch } from '@/components/swatch';
 import { VoucherRedeem } from '@/components/admin/voucher-redeem';
-import { cancelAppointmentAction, markStatusAction } from '@/app/admin/actions';
+import {
+  cancelAppointmentAction,
+  markStatusAction,
+  resendConfirmationAction,
+  saveCustomerEmailAction,
+} from '@/app/admin/actions';
 import { formatZar } from '@/lib/money';
 import { formatPhoneForDisplay, whatsappLink } from '@/lib/phone';
 import { addDays } from '@/lib/time';
@@ -22,6 +27,7 @@ interface Row {
   resourceName: string | null;
   customerName: string;
   customerPhone: string;
+  customerEmail: string | null;
   priceCents: number;
   partySize: number;
   notes: string | null;
@@ -171,6 +177,18 @@ export function TodayList({
                     {' · '}
                     <span className="tabular">{formatZar(appointment.priceCents)}</span>
                   </p>
+                  <p className="mt-1 truncate text-xs text-mauve-400">
+                    {appointment.customerEmail ? (
+                      <a
+                        href={`mailto:${appointment.customerEmail}`}
+                        className="underline underline-offset-4 hover:text-mauve-500"
+                      >
+                        {appointment.customerEmail}
+                      </a>
+                    ) : (
+                      'No email on file'
+                    )}
+                  </p>
                   {appointment.notes && (
                     <p className="mt-2 rounded-lg bg-blush-100 px-3 py-2 text-xs text-mauve-600">
                       {appointment.notes}
@@ -196,6 +214,37 @@ export function TodayList({
                 >
                   {formatPhoneForDisplay(appointment.customerPhone)}
                 </a>
+                {appointment.customerEmail ? (
+                  <button
+                    type="button"
+                    disabled={pending}
+                    onClick={() => run(() => resendConfirmationAction(appointment.id))}
+                    className="rounded-full border border-blush-300 px-3.5 py-2 text-xs hover:bg-blush-100 disabled:opacity-50"
+                  >
+                    Email confirmation
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={pending}
+                    onClick={() => {
+                      const email = window.prompt(
+                        `Email address for ${appointment.customerName}?`,
+                      );
+                      if (email?.trim()) {
+                        run(() =>
+                          saveCustomerEmailAction({
+                            appointmentId: appointment.id,
+                            email: email.trim(),
+                          }),
+                        );
+                      }
+                    }}
+                    className="rounded-full border border-blush-300 px-3.5 py-2 text-xs hover:bg-blush-100 disabled:opacity-50"
+                  >
+                    Add email
+                  </button>
+                )}
 
                 <button
                   type="button"

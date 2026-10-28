@@ -6,6 +6,7 @@ import { requireOwner } from '@/lib/supabase/session';
 import {
   cancelBooking,
   createBooking,
+  getAppointmentById,
   markAppointmentStatus,
   rescheduleBooking,
   type ClashSummary,
@@ -25,9 +26,14 @@ import {
 } from '@/lib/config-guards';
 import { query, queryOne } from '@/lib/db';
 import { getBusiness } from '@/lib/availability';
-import { zonedToUtc } from '@/lib/time';
+import { formatDateTimeLabel, zonedToUtc } from '@/lib/time';
 import { formatZar } from '@/lib/money';
-import { sendVoucherIssued } from '@/lib/email';
+import {
+  sendCustomerCancellation,
+  sendCustomerConfirmation,
+  sendCustomerRescheduled,
+  sendVoucherIssued,
+} from '@/lib/email';
 import {
   adjustVoucher,
   getVoucherByCode,
@@ -102,9 +108,30 @@ export async function cancelAppointmentAction(appointmentId: string): Promise<Ac
   const { businessId } = await requireOwner();
   await assertOwnAppointment(appointmentId, businessId);
 
+  // Read before the write: once cancelBooking has run the row is still there,
+  // but the copy that names the customer and carries her email is easiest to
+  // reason about as the state she was cancelled from.
+  const detail = await getAppointmentById(appointmentId);
   const result = await cancelBooking({ appointmentId, actor: 'admin' });
+
+  if (result.ok) {
+    const emailed = Boolean(detail?.customer_email);
+    // The owner is the actor here, so only the customer needs telling. Still
+    // dispatched after the response — the cancellation is already committed.
+    if (detail && emailed) {
+      after(() => sendCustomerCancellation(detail));
+    }
+    refreshAdmin();
+    return {
+      ok: true,
+      message: emailed
+        ? 'Booking cancelled. A cancellation email is on its way to the client.'
+        : 'Booking cancelled. No email address on file for this client.',
+    };
+  }
+
   refreshAdmin();
-  return result.ok ? { ok: true, message: 'Booking cancelled.' } : { ok: false, message: result.message };
+  return { ok: false, message: result.message };
 }
 
 // ------------------------------------------------------------------- walk-ins
@@ -122,9 +149,16 @@ export async function createWalkInAction(input: {
   time: string;
   name: string;
   phone: string;
+  /** Optional, but the only way a counter booking can get a confirmation. */
+  email?: string;
   notes?: string;
-}): Promise<ActionResult & { appointmentId?: string; priceCents?: number }> {
+}): Promise<ActionResult & { appointmentId?: string; priceCents?: number; emailed?: boolean }> {
   const { businessId } = await requireOwner();
+
+  const email = input.email?.trim() || null;
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { ok: false, message: 'That does not look like an email address.' };
+  }
 
   // §12: the server computes all times. The form sends the wall clock the
   // owner typed; converting it here means a laptop left on the wrong timezone
@@ -138,19 +172,30 @@ export async function createWalkInAction(input: {
     startsAt,
     name: input.name,
     phone: input.phone,
+    // Empty means "no new address"; createBooking keeps the one already on
+    // the customer row for a repeat visitor.
+    email,
     notes: input.notes ?? null,
     source: 'walkin',
   });
 
   refreshAdmin();
   if (result.ok) {
+    const detail = await getAppointmentById(result.appointment.id);
+    const emailed = Boolean(detail?.customer_email);
+    if (detail && emailed) {
+      after(() => sendCustomerConfirmation(detail));
+    }
     return {
       ok: true,
-      message: `Booked ${input.name} in.`,
+      message: emailed
+        ? `Booked ${input.name} in. A confirmation email is on its way.`
+        : `Booked ${input.name} in. No email address on file, so no confirmation was sent.`,
       // A voucher is at least as likely at the counter as online (vouchers
       // spec §4) — the form uses this to offer redemption straight away.
       appointmentId: result.appointment.id,
       priceCents: result.appointment.price_cents_at_booking,
+      emailed,
     };
   }
   return {
@@ -174,6 +219,10 @@ export async function moveAppointmentAction(input: {
   const { businessId } = await requireOwner();
   await assertOwnAppointment(input.appointmentId, businessId);
 
+  // The old time is gone once the move commits, so capture the wording the
+  // customer needs before rescheduleBooking replaces the row.
+  const original = await getAppointmentById(input.appointmentId);
+
   const result = await rescheduleBooking({
     appointmentId: input.appointmentId,
     startsAt: await toBusinessInstant(businessId, input.date, input.time),
@@ -182,12 +231,93 @@ export async function moveAppointmentAction(input: {
   });
 
   refreshAdmin();
-  if (result.ok) return { ok: true, message: 'Booking moved.' };
+  if (result.ok) {
+    const moved = await getAppointmentById(result.appointment.id);
+    const emailed = Boolean(moved?.customer_email);
+    if (moved && original && emailed) {
+      const oldWhen = formatDateTimeLabel(
+        new Date(original.starts_at),
+        original.business_timezone,
+      );
+      after(() => sendCustomerRescheduled(moved, oldWhen));
+    }
+    return {
+      ok: true,
+      message: emailed
+        ? 'Booking moved. A "new time" email is on its way to the client.'
+        : 'Booking moved. No email address on file for this client.',
+    };
+  }
   return {
     ok: false,
     message: result.message,
     clashesWith: result.error === 'slot_taken' ? result.clashesWith : undefined,
   };
+}
+
+/**
+ * Save an email address against the customer behind a booking, then send the
+ * confirmation to it. This is the fix for a phone booking that never had an
+ * address — without it the owner can see "No email on file" but has no way to
+ * act on it short of asking the client to book again.
+ */
+export async function saveCustomerEmailAction(input: {
+  appointmentId: string;
+  email: string;
+}): Promise<ActionResult> {
+  const { businessId } = await requireOwner();
+  await assertOwnAppointment(input.appointmentId, businessId);
+
+  const email = input.email.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { ok: false, message: 'That does not look like an email address.' };
+  }
+
+  const detail = await getAppointmentById(input.appointmentId);
+  if (!detail) return { ok: false, message: 'That booking could not be found.' };
+  if (detail.status !== 'pending' && detail.status !== 'confirmed') {
+    return { ok: false, message: 'That booking is closed, so there is no confirmation to send.' };
+  }
+
+  await query('update customers set email = $2 where id = $1', [detail.customer_id, email]);
+
+  // Send from the freshly-read row so the mail carries exactly what was saved.
+  const updated = await getAppointmentById(input.appointmentId);
+  const sent = updated ? await sendCustomerConfirmation(updated) : false;
+  refreshAdmin();
+
+  return sent
+    ? { ok: true, message: `Email saved. Confirmation sent to ${email}.` }
+    : { ok: false, message: 'Email saved, but the confirmation could not be sent. Check the mail setup.' };
+}
+
+/**
+ * Send (or re-send) a client's booking confirmation from the admin.
+ *
+ * Unlike the automatic sends, the owner explicitly asked for this one and is
+ * owed a real answer, so it awaits the send — same contract as
+ * resendVoucherEmailAction. Useful when a client says the first one never
+ * arrived.
+ */
+export async function resendConfirmationAction(appointmentId: string): Promise<ActionResult> {
+  const { businessId } = await requireOwner();
+  await assertOwnAppointment(appointmentId, businessId);
+
+  const detail = await getAppointmentById(appointmentId);
+  if (!detail) return { ok: false, message: 'That booking could not be found.' };
+  if (detail.status !== 'pending' && detail.status !== 'confirmed') {
+    return { ok: false, message: 'That booking is closed, so there is no confirmation to send.' };
+  }
+
+  const email = detail.customer_email?.trim();
+  if (!email) {
+    return { ok: false, message: 'No email address on file for this client. Add one when booking.' };
+  }
+
+  const sent = await sendCustomerConfirmation(detail);
+  return sent
+    ? { ok: true, message: `Confirmation emailed to ${email}.` }
+    : { ok: false, message: 'Could not send the email. Check the mail setup and try again.' };
 }
 
 // --------------------------------------------------------------------- blocks

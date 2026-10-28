@@ -45,6 +45,7 @@ export default async function TodayPage({
         resourceName: appointment.resource_name,
         customerName: appointment.customer_name,
         customerPhone: appointment.customer_phone,
+        customerEmail: appointment.customer_email,
         priceCents: appointment.price_cents_at_booking,
         partySize: appointment.party_size,
         notes: appointment.notes,

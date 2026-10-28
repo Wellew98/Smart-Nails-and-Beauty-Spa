@@ -89,6 +89,26 @@ function detailRows(appointment: AppointmentDetail): string {
 }
 
 /**
+ * Who to contact on the owner-facing mails.
+ *
+ * The phone number was always here; the email address was not, so the owner
+ * could see a booking but had no way to reply to the person who made it
+ * without opening the admin. Notes are included when present because they are
+ * often the only explanation of a special request.
+ */
+function contactRows(appointment: AppointmentDetail, includeNotes = true): string {
+  const email = appointment.customer_email?.trim();
+  const notes = includeNotes ? appointment.notes?.trim() : null;
+  return `
+    <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:8px">
+      <tr><td style="padding:6px 0;color:#7a5a72">Customer</td><td style="padding:6px 0;text-align:right">${escapeHtml(appointment.customer_name)}</td></tr>
+      <tr><td style="padding:6px 0;color:#7a5a72">Phone</td><td style="padding:6px 0;text-align:right">${escapeHtml(formatPhoneForDisplay(appointment.customer_phone))}</td></tr>
+      ${email ? `<tr><td style="padding:6px 0;color:#7a5a72">Email</td><td style="padding:6px 0;text-align:right"><a href="mailto:${escapeHtml(email)}" style="color:#c2185b">${escapeHtml(email)}</a></td></tr>` : ''}
+      ${notes ? `<tr><td style="padding:6px 0;color:#7a5a72">Notes</td><td style="padding:6px 0;text-align:right">${escapeHtml(notes)}</td></tr>` : ''}
+    </table>`;
+}
+
+/**
  * The single place a send is attempted. Swallows everything, by design — see
  * the note at the top of this file.
  */
@@ -98,27 +118,29 @@ async function deliver(
   to: string | undefined | null,
   subject: string,
   html: string,
-): Promise<void> {
+): Promise<boolean> {
   const transport = getTransport();
   // No mailer configured is a normal state before §1.2 is done, and no
   // recipient simply means this message has nobody to go to — the email field
   // on /book is optional. Neither is an error worth logging on every booking.
-  if (!transport || !to) return;
+  if (!transport || !to) return false;
 
   try {
     await transport.send({ to, subject, html, fromName: appointment.business_name });
+    return true;
   } catch (error) {
     console.error(`[email] ${what} failed`, {
       appointmentId: appointment.id,
       transport: transport.name,
       ...safeError(error),
     });
+    return false;
   }
 }
 
-export async function sendCustomerConfirmation(appointment: AppointmentDetail): Promise<void> {
+export async function sendCustomerConfirmation(appointment: AppointmentDetail): Promise<boolean> {
   const url = manageUrl(appointment.manage_token);
-  await deliver(
+  return deliver(
     'customer confirmation',
     appointment,
     appointment.customer_email,
@@ -147,11 +169,7 @@ export async function sendOwnerNotification(appointment: AppointmentDetail): Pro
     `New booking: ${appointment.service_name}, ${appointment.staff_name}${party}`,
     layout(
       'New booking',
-      `${detailRows(appointment)}
-       <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:8px">
-         <tr><td style="padding:6px 0;color:#7a5a72">Customer</td><td style="padding:6px 0;text-align:right">${escapeHtml(appointment.customer_name)}</td></tr>
-         <tr><td style="padding:6px 0;color:#7a5a72">Phone</td><td style="padding:6px 0;text-align:right">${escapeHtml(formatPhoneForDisplay(appointment.customer_phone))}</td></tr>
-       </table>`,
+      `${detailRows(appointment)}${contactRows(appointment)}`,
     ),
   );
 }
@@ -162,7 +180,10 @@ export async function sendCancellationNotice(appointment: AppointmentDetail): Pr
     appointment,
     process.env.OWNER_NOTIFICATION_EMAIL,
     `Cancelled: ${appointment.service_name}, ${appointment.staff_name}`,
-    layout('Booking cancelled', detailRows(appointment)),
+    // Notes are deliberately omitted. This notice is also the one sent after a
+    // customer erasure, and notes are free text that must not be processed
+    // again after the record has been emptied.
+    layout('Booking cancelled', `${detailRows(appointment)}${contactRows(appointment, false)}`),
   );
 }
 
@@ -229,11 +250,7 @@ export async function sendOwnerRescheduled(
       `<p style="margin:0 0 16px;font-size:14px;line-height:1.6">
          From ${escapeHtml(oldWhen)} to <strong>${escapeHtml(newWhen)}</strong>.
        </p>
-       ${detailRows(appointment)}
-       <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:8px">
-         <tr><td style="padding:6px 0;color:#7a5a72">Customer</td><td style="padding:6px 0;text-align:right">${escapeHtml(appointment.customer_name)}</td></tr>
-         <tr><td style="padding:6px 0;color:#7a5a72">Phone</td><td style="padding:6px 0;text-align:right">${escapeHtml(formatPhoneForDisplay(appointment.customer_phone))}</td></tr>
-       </table>`,
+       ${detailRows(appointment)}${contactRows(appointment)}`,
     ),
   );
 }
