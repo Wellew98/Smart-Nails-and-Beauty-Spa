@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Swatch } from '@/components/swatch';
+import { categoryLabelFor } from '@/lib/flyer-prices';
 import { lacquerFor } from '@/lib/palette';
 import { formatDuration, formatZar } from '@/lib/money';
 import { formatPhoneForDisplay } from '@/lib/phone';
@@ -154,13 +155,19 @@ export function BookingFlow({
 
   const service = useMemo(() => services.find((s) => s.id === serviceId) ?? null, [services, serviceId]);
 
-  /** The menu, grouped under the studio's own poster headings. */
+  /**
+   * The menu, grouped under the studio's own poster headings.
+   *
+   * Group by the DISPLAY label, not the raw `services.description`. The database
+   * stores the flyer's wording ("Eyelashes Extensions"), which reads like a typo
+   * in a tab strip, and the homepage cards link here with the display form
+   * ("Eyelash Extensions"). Keying on anything else makes those links drop their
+   * category silently and open the first tab instead.
+   */
   const serviceGroups = useMemo(
     () => [
       ...services.reduce((map, item) => {
-        const label = item.description?.trim() ?? '';
-        // Only short labels are categories; a real sentence is a description.
-        const key = label.length > 0 && label.length <= 30 ? label : '';
+        const key = categoryLabelFor(item.description);
         return map.set(key, [...(map.get(key) ?? []), item]);
       }, new Map<string, BookableService[]>()),
     ],
@@ -176,8 +183,7 @@ export function BookingFlow({
     const pre = preselectedServiceId
       ? services.find((s) => s.id === preselectedServiceId)
       : undefined;
-    const label = pre?.description?.trim() ?? '';
-    const key = label.length > 0 && label.length <= 30 ? label : '';
+    const key = categoryLabelFor(pre?.description ?? null);
     if (key !== '' && categories.includes(key)) return key;
     if (preselectedCategory && categories.includes(preselectedCategory)) return preselectedCategory;
     return categories[0] ?? '';

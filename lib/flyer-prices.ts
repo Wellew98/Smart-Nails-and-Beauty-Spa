@@ -124,6 +124,21 @@ export function headingLabelFor(description: string | null): string {
   return HEADINGS.find((entry) => entry.match === key)?.label ?? '';
 }
 
+/**
+ * The label a booking tab and a homepage deep-link use for one service.
+ *
+ * `services.description` holds the flyer's own wording ("Eyelashes Extensions",
+ * "Manicure"), which is not always the label we show ("Eyelash Extensions",
+ * "Manicure & Pedicure"). Group tabs, the `?category=` validation on /book and
+ * the homepage cards must all agree, or a card opens the wrong tab and nobody
+ * gets an error. Returns '' when the value is a sentence rather than a heading.
+ */
+export function categoryLabelFor(description: string | null): string {
+  const raw = (description ?? '').trim();
+  // Only short labels are categories; a real sentence is a description.
+  return headingLabelFor(raw.length > 0 && raw.length <= 30 ? raw : '');
+}
+
 /** Group services under the flyer's headings, in flyer order. */
 export function groupForFlyer(services: Service[]): FlyerPriceGroup[] {
   const buckets = new Map<string, FlyerPriceGroup>();

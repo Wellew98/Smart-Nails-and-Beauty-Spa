@@ -50,7 +50,7 @@ const SERVICE_CARDS = [
     name: 'Manicure & Pedicure',
     line: 'Express, full, gel finish',
     from: 'from R230',
-    category: 'Manicure',
+    category: 'Manicure & Pedicure',
     img: 'https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?w=800&q=80&auto=format&fit=crop',
     alt: 'Feet soaking in a pedicure foot bath with orchids',
   },

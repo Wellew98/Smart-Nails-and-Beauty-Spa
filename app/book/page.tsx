@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { BookingFlow, type BookableDay, type BookableService } from '@/components/book/booking-flow';
+import { categoryLabelFor } from '@/lib/flyer-prices';
 import { getActiveServices, getBusiness, getOpeningHours, getStaffForService } from '@/lib/public-data';
 import { addDays, dayOfWeekInZone, todayInZone } from '@/lib/time';
 import { DAY_SHORT } from '@/lib/site';
@@ -59,10 +60,10 @@ export default async function BookPage({
 
   // A homepage card deep-links its category (?category=Gel). Only real
   // poster headings survive: anything else falls back to the default tab.
+  // Compared in DISPLAY form, because that is what the cards send and what the
+  // tab strip shows, even though the database stores the flyer's wording.
   const knownCategories = new Set(
-    bookable
-      .map((service) => service.description?.trim() ?? '')
-      .filter((label) => label.length > 0 && label.length <= 30),
+    bookable.map((service) => categoryLabelFor(service.description)).filter((label) => label !== ''),
   );
   const preselectedCategory =
     params.category && knownCategories.has(params.category) ? params.category : null;

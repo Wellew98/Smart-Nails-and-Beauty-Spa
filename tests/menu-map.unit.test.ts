@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { CATEGORY_CONTENT } from '@/lib/category-content';
-import { GROUP_IMAGES, headingLabelFor } from '@/lib/flyer-prices';
+import { GROUP_IMAGES, categoryLabelFor, headingLabelFor } from '@/lib/flyer-prices';
 
 /**
  * The menu has three copies of the same fact: the `description` column in the
@@ -68,5 +68,30 @@ describe('menu headings', () => {
   it('uses unique slugs and keys', () => {
     expect(new Set(CATEGORY_CONTENT.map((c) => c.slug)).size).toBe(CATEGORY_CONTENT.length);
     expect(new Set(CATEGORY_CONTENT.map((c) => c.key)).size).toBe(CATEGORY_CONTENT.length);
+  });
+
+  it('homepage cards deep-link a real booking tab', () => {
+    // Read the source rather than importing the page: app/page.tsx is a server
+    // component that fetches at render time, and this test must not need a DB.
+    // A card whose `category` matches no tab still renders and still links to
+    // /book, it just lands on the first tab, so only a test like this notices.
+    const source = fs.readFileSync(path.join(process.cwd(), 'app', 'page.tsx'), 'utf8');
+    const cardCategories = [...source.matchAll(/category:\s*'([^']*)'/g)].map((match) => match[1]);
+    expect(cardCategories.length).toBeGreaterThanOrEqual(5);
+
+    const tabLabels = new Set(descriptions.map((description) => categoryLabelFor(description)));
+    const orphans = cardCategories.filter((category) => !tabLabels.has(category));
+    expect(
+      orphans,
+      `Homepage cards link to a category no booking tab uses: ${orphans.join(', ')}`,
+    ).toEqual([]);
+  });
+
+  it('booking tab labels are display-ready', () => {
+    // The database keeps the flyer's wording; the tab strip must not.
+    const labels = descriptions.map((description) => categoryLabelFor(description));
+    expect(labels).not.toContain('Eyelashes Extensions');
+    expect(labels).not.toContain('Manicure');
+    expect(new Set(labels).size).toBe(labels.length);
   });
 });
