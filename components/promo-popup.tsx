@@ -4,9 +4,13 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 /**
- * Signature-offer popup (R500 Special Package). Shows once per session
- * after a short delay, closable via the button, the backdrop or Escape.
- * Online-booking only: the claim button points at /book, never WhatsApp.
+ * Signature-offer popup (the Special Package). Shows once per session after a
+ * short delay, closable via the button, the backdrop or Escape. Online-booking
+ * only: the claim button points at /book, never WhatsApp.
+ *
+ * Currently rendered behind `SHOW_PROMO_POPUP` in app/page.tsx, which is false
+ * until the owner confirms the R80 and R90 package prices on the 2026-10-30
+ * flyer. The copy below quotes R80, so if the price changes, change it here.
  */
 export function PromoPopup({ serviceId }: { serviceId: string | null }) {
   const [visible, setVisible] = useState(false);
@@ -57,16 +61,19 @@ export function PromoPopup({ serviceId }: { serviceId: string | null }) {
         </button>
         <p className="eyebrow light">Three treatments, one booking</p>
         <h2 id="promoTitle">
-          Special package, <span className="price">R500</span>
+          Special package, <span className="price">R80</span>
         </h2>
-        <p>Massage, facial and pedicure, with gel on hands and feet. One booking covers all three.</p>
+        <p>
+          Massage, facial and pedicure in one appointment. The second package
+          pairs a full mani, a full pedi and gelish brows.
+        </p>
         <div className="offer-btns">
           <Link
             className="btn btn-light"
             href={serviceId ? `/book?service=${serviceId}` : '/book'}
             onClick={close}
           >
-            Book the R500 special
+            Book the special package
           </Link>
           <Link className="btn btn-outline-light" href="/prices" onClick={close}>
             See all prices

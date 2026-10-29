@@ -19,11 +19,15 @@ export interface Lacquer {
 }
 
 const RANGE: Record<string, Lacquer> = {
-  'full body massage': { base: '#4A6247', tint: '#6E8A69', ink: '#3B4F39', shade: 'Eucalyptus' },
-  'back & neck massage': { base: '#9A5A22', tint: '#C4813F', ink: '#7C4718', shade: 'Amber Room' },
-  'classic facial': { base: '#C05C4C', tint: '#E08573', ink: '#9A463A', shade: 'Soft Coral' },
-  'gel manicure': { base: '#A01049', tint: '#D94A80', ink: '#8E0D41', shade: 'House Lacquer' },
-  pedicure: { base: '#5B3A6E', tint: '#815995', ink: '#4B2F5B', shade: 'Plum Velvet' },
+  // Keys are service names lowercased. They follow the owner's current price
+  // list (migration 0013); anything that does not match falls back to the
+  // hash range below, which is why a stale key here is cosmetic and never a
+  // crash.
+  'swedish massage 60 minutes': { base: '#4A6247', tint: '#6E8A69', ink: '#3B4F39', shade: 'Eucalyptus' },
+  'feet massage 30 minutes': { base: '#9A5A22', tint: '#C4813F', ink: '#7C4718', shade: 'Amber Room' },
+  'full face': { base: '#C05C4C', tint: '#E08573', ink: '#9A463A', shade: 'Soft Coral' },
+  'gel overlay hand': { base: '#A01049', tint: '#D94A80', ink: '#8E0D41', shade: 'House Lacquer' },
+  'full pedi & gel': { base: '#5B3A6E', tint: '#815995', ink: '#4B2F5B', shade: 'Plum Velvet' },
 };
 
 /** Used when a treatment is not in the curated range. */

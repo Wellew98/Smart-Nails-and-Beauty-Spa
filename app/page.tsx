@@ -8,75 +8,98 @@ import { REVIEW_URL } from '@/lib/site';
 export const metadata: Metadata = {
   title: 'Smart Nails and Beauty Spa | Beauty Begins Here, Glenanda, Johannesburg South',
   description:
-    'Smart Nails and Beauty Spa, 75 Amanda Avenue, Glenanda, Johannesburg South. Nails, Pedicure, Massage, Facials, Lashes, Waxing, Makeup and Body Treatments. Book online in under a minute. Mon to Sat 8am to 8pm, Sun 9am to 4pm.',
+    'Smart Nails and Beauty Spa, 75 Amanda Avenue, Glenanda, Johannesburg South. Acrylics, gel, manicures, pedicures, lash extensions, massage and waxing. Book online in under a minute. Mon to Sat 8am to 8pm, Sun 9am to 4pm.',
 };
 
+/**
+ * The home page grid. Each card deep-links /book with its category, and the
+ * category string must match `services.description` exactly or the booking
+ * page silently drops the filter and shows everything.
+ *
+ * `from` is a hand-maintained floor price for the category. It follows the
+ * owner's price list (migration 0013, received 2026-10-30). Every time a flyer
+ * changes, these eight strings need checking against the cheapest line in the
+ * matching heading, or a card ends up advertising a price nobody can book.
+ */
 const SERVICE_CARDS = [
   {
     name: 'Nails',
-    line: 'Acrylic, gel, shaping',
-    from: 'from R70',
+    line: 'Acrylic, tips, French, ombre',
+    from: 'from R110',
     category: 'Nails',
     img: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=800&q=80&auto=format&fit=crop',
     alt: 'Pink gel manicure close-up',
   },
   {
-    name: 'Pedicure',
-    line: 'Express, gel, Smart pedi',
-    from: 'from R200',
-    category: 'Pedicure',
+    name: 'Gel',
+    line: 'Overlay on hands or feet',
+    from: 'from R230',
+    category: 'Gel',
+    img: 'https://images.unsplash.com/photo-1610992015732-2449b76344bc?w=800&q=80&auto=format&fit=crop',
+    alt: 'Gel polish colour selection',
+  },
+  {
+    name: 'Art & Repair',
+    line: 'Designs, single repairs, soak off',
+    from: 'from R40',
+    category: 'Art & Repair',
+    img: 'https://images.unsplash.com/photo-1619607146034-5a05296c8f9a?w=800&q=80&auto=format&fit=crop',
+    alt: 'Wall of nail polish bottles on gold shelves in a salon',
+  },
+  {
+    name: 'Manicure & Pedicure',
+    line: 'Express, full, gel finish',
+    from: 'from R230',
+    category: 'Manicure',
     img: 'https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?w=800&q=80&auto=format&fit=crop',
     alt: 'Feet soaking in a pedicure foot bath with orchids',
   },
   {
+    name: 'Lash Extensions',
+    line: 'Classic sets and weekly fills',
+    from: 'from R110',
+    category: 'Eyelash Extensions',
+    img: 'https://images.unsplash.com/photo-1589710751893-f9a6770ad71b?w=800&q=80&auto=format&fit=crop',
+    alt: 'Eyelash extensions being applied with tweezers',
+  },
+  {
     name: 'Massage',
-    line: 'Full body, hot stone, couples',
-    from: 'from R200',
+    line: 'Swedish 30 or 60 minutes',
+    from: 'from R180',
     category: 'Massage',
     img: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=800&q=80&auto=format&fit=crop',
     alt: 'Full body massage for tension release',
   },
   {
-    name: 'Facials',
-    line: 'Deep cleanse, glow, anti-aging',
-    from: 'from R300',
-    category: 'Facials',
-    img: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&q=80&auto=format&fit=crop',
-    alt: 'Hydrating facial treatment',
-  },
-  {
-    name: 'Lashes',
-    line: 'Classic, hybrid, volume',
-    from: 'from R150',
-    category: 'Lashes',
-    img: 'https://images.unsplash.com/photo-1589710751893-f9a6770ad71b?w=800&q=80&auto=format&fit=crop',
-    alt: 'Eyelash extensions being applied with tweezers',
-  },
-  {
     name: 'Waxing',
-    line: 'Face, body, Brazilian',
-    from: 'from R100',
+    line: 'Brows, face, arms, legs, bikini',
+    from: 'from R80',
     category: 'Waxing',
     img: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=800&q=80&auto=format&fit=crop',
     alt: 'Professional waxing and skincare products',
   },
   {
-    name: 'Makeup',
-    line: 'Full glam look',
-    from: 'R550',
-    category: 'Makeup',
-    img: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800&q=80&auto=format&fit=crop',
-    alt: 'Makeup beauty close-up',
-  },
-  {
-    name: 'Body',
-    line: 'Body scrub ritual',
-    from: 'R450',
-    category: 'Body treatments',
-    img: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&q=80&auto=format&fit=crop',
-    alt: 'Warm oil spa body treatment ritual',
+    name: 'Special Package',
+    line: 'Three treatments, one booking',
+    from: 'from R80',
+    category: 'Special Package',
+    img: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800&q=80&auto=format&fit=crop',
+    alt: 'Spa towels and flowers beside treatment oil',
   },
 ] as const;
+
+/**
+ * The signature-offer popup is OFF until the owner confirms the package
+ * prices. The 2026-10-30 flyer prints the two packages at R80 and R90, which
+ * is a fraction of the sum of their parts, so advertising that number from
+ * the home page before she has seen it is a risk not worth taking. The
+ * packages are still listed and bookable under /prices and /book.
+ *
+ * Flip this to true once she confirms, and update the copy in
+ * components/promo-popup.tsx at the same time (it still names the old R500
+ * package and its old composition).
+ */
+const SHOW_PROMO_POPUP = false;
 
 const GALLERY = [
   {
@@ -203,7 +226,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {specialId ? <PromoPopup serviceId={specialId} /> : null}
+      {SHOW_PROMO_POPUP && specialId ? <PromoPopup serviceId={specialId} /> : null}
 
       {/* MARQUEE — the menu in one breath, pacing hero into services.
           Two identical halves, each at least a viewport wide with items
@@ -213,7 +236,7 @@ export default async function HomePage() {
         <p className="marquee-track">
           {[0, 1].map((half) => (
             <span className="marquee-half" key={half}>
-              {['Nails', 'Pedicure', 'Massage', 'Facials', 'Lashes', 'Waxing', 'Makeup', 'Body'].map(
+              {['Nails', 'Gel', 'Acrylics', 'Manicure', 'Pedicure', 'Lashes', 'Massage', 'Waxing'].map(
                 (item) => (
                   <span key={item}>{item}</span>
                 ),

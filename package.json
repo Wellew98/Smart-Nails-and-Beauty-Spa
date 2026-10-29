@@ -8,6 +8,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:unit": "vitest run --config vitest.unit.mts",
     "test:watch": "vitest",
     "db:migrate": "node scripts/apply-migrations.mjs",
     "resend:setup": "node scripts/resend-setup.mjs"

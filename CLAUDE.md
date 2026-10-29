@@ -43,9 +43,30 @@ This file is committed to git, so no raw secrets here. Values live in:
 
 ## Decisions / standing rules
 
-- Menu rule: flyer names + prices are real (54 services); durations are estimates
-  (only the 1-hour massages were stated). Provisional rows carry a `dddddddd-`
-  name prefix so the "confirm with owner" banner stays until real durations land.
+- Menu rule: flyer names + prices are real; durations are estimates (only the
+  massage lines state a length). Provisional rows carry a `dddddddd-` name
+  prefix so the "confirm with owner" banner stays until real durations land.
+- CURRENT MENU = `supabase/migrations/0013_price_list.sql` (flyer received
+  2026-10-30, image in `docs/source-material/smart-price-list-2026-10.jpeg`).
+  9 headings, 44 bookable lines, all `dddddddd-...-3xx` ids. The 58 rows from
+  0006 and 0010 are DEACTIVATED, not deleted.
+- Hidden until the owner confirms she still offers them: Facials, Makeup,
+  Body Scrub, and the standalone pedicure range. Bring any of them back with
+  one `update services set active = true where description = '<heading>'`.
+  The pedicure lines themselves are live, under the MANICURE heading.
+- Three unresolved flyer problems, recorded in the 0013 header and still to be
+  asked: (1) "HALF ARMS" printed twice, transcribed as Half Arms R150 + Full
+  Arms R190; (2) the Special Package prices read R80 and R90, which is a
+  fraction of the sum of their parts; (3) the flyer prices no facials yet the
+  Special Package line still includes one.
+- The homepage promo popup is OFF (`SHOW_PROMO_POPUP` in `app/page.tsx`) until
+  the R80/R90 package prices are confirmed. It is not worth advertising a
+  number that may be missing a zero.
+- The menu is one fact stored in three places: the DB `description` column,
+  `CATEGORY_CONTENT[].key` in `lib/category-content.ts`, and the `match` list in
+  `lib/flyer-prices.ts`. A mismatch does not crash, it hides treatments. Guard:
+  `npm run test:unit` (`tests/menu-map.unit.test.ts`). When a new flyer lands,
+  bump `MENU_MIGRATION` in that test.
 - AI chatbot: OFF (no AI key by design). Setup → AI assistant shows disabled state.
 - Voucher Phase C (spend voucher during online booking) NOT built — same as Grace;
   only build it once voucher sales exist and someone asks.
@@ -104,7 +125,9 @@ This file is committed to git, so no raw secrets here. Values live in:
 - `components/smart-mark.tsx` — logo (old `grace-mark.tsx` deleted)
 - `supabase/migrations/0003_business.sql` — Smart NAP row
 - `supabase/migrations/0004_demo_data.sql` — hours (08:00 starts)
-- `supabase/migrations/0006_poster_menu.sql` — 54-service flyer transcription
+- `supabase/migrations/0013_price_list.sql` — current menu (44 lines, 9 headings)
+- `supabase/migrations/0006_poster_menu.sql` — first flyer transcription (retired)
+- `supabase/migrations/0010_updated_menu.sql` — second flyer (retired)
 - `lib/photos.ts` / `lib/reviews.ts` — placeholders + TODOs (`REVIEWS=[]`, homepage conditional)
 - `lib/email.ts` / `lib/vouchers.ts` / `app/admin/actions.ts` — mail + voucher logic
 - `docs/SMART_START.md` — clone handoff · `docs/HANDOFF.md` — Grace reference only
