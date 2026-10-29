@@ -75,13 +75,20 @@ This file is committed to git, so no raw secrets here. Values live in:
   customer email, so owner mails can reference a different name than typed.
   Only change this if the owner asks.
 
-## Verified working (2026-10-06, live site)
+## Verified working (2026-10-30, live site)
 
-- 54 treatments listed, /book has 10 categories, /admin diary works.
+- Menu updated from the owner's 2026-10-30 price list: 44 treatments, 9 headings,
+  /prices in flyer order, /book tab strip in display labels. Every new row has a
+  staff + room mapping, so all 44 are bookable.
+- Retired category URLs redirect: `/treatments/pedicure` → `/treatments/manicure`
+  (308), facials / makeup / body-treatments → `/treatments` (307).
 - Booking emails: customer + owner mails delivered (Gmail custom "Smart Nails" thread).
 - Double-booking: concurrent same-slot → one 201, one 409 `slot_taken`; diary exclusion lock holds.
 - Vouchers: issue → emailed → EMAILED TO stamped → redeem walk-in/Today → adjust/void audited.
 - Health: `/api/health` and `/api/health?verify=mail` both ok.
+- `npm run typecheck`, `npm run build` and `npm run test:unit` pass. `npm run test`
+  (the DB-backed suite) needs Postgres on :5433 and has NOT been run since the
+  menu change, because Docker is not installed on this machine.
 
 ## Test data hygiene
 
