@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:migrate": "node scripts/apply-migrations.mjs"
+    "db:migrate": "node scripts/apply-migrations.mjs",
+    "resend:setup": "node scripts/resend-setup.mjs"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.14",
