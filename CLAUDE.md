@@ -123,6 +123,15 @@ This file is committed to git, so no raw secrets here. Values live in:
 
 - Hours, website, menu link (/treatments), WhatsApp chat, +17 nail services,
   on-site services = Yes, service area already "Johannesburg South" (kept).
+- **Appointment link still points at the Vercel alias**
+  (`smart-nails-and-beauty-spa.vercel.app`), spotted 2026-10-30 in the Contact
+  block of the profile. This is the most visible place the alias still appears:
+  it prints in the Search/Maps contact panel no matter how the site is configured,
+  and it advertises a hostname that now 308s. Owner (or a neo-connected session)
+  must set it to `https://www.smartnailsandbeautyspa.co.za/book` via
+  Edit profile → Contact → Appointments. The Website field should also be the
+  `www.` form so profile, sitemap, canonicals and JSON-LD all state one exact URL.
+  Not fixable from this repo: no GBP API access is configured.
 - Description kept (749 chars, keyword-rich). Categories currently Beauty Salon
   primary + Nail salon additional (see flip recommendation above).
 - Booking URL → /book set 2026-10-07, pending Google review; re-check "Book online"
