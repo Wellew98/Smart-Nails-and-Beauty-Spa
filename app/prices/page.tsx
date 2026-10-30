@@ -1,12 +1,14 @@
 import type { Metadata } from 'next';
 import { PriceList } from '@/components/price-list';
 import { groupForFlyer } from '@/lib/flyer-prices';
+import { canonical } from '@/lib/seo';
 import { getActiveServices, getBusiness } from '@/lib/public-data';
 
 export const metadata: Metadata = {
   title: 'Prices',
   description:
     'Full price list, exactly as our flyer. Tap any item to book it online in seconds.',
+  ...canonical('/prices'),
 };
 
 /**

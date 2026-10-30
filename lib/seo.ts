@@ -8,6 +8,27 @@
  * flyer names.
  */
 
+import type { Metadata } from 'next';
+
+/**
+ * The address this site answers on, without a trailing slash.
+ *
+ * Vercel always serves a project on `<project>.vercel.app`; that cannot be
+ * switched off. Once the custom domain was connected the same pages answered on
+ * two hostnames, and because nothing ever named a preferred URL, Google indexed
+ * both. `next.config.ts` now redirects the Vercel alias here, and every
+ * indexable page names itself with a canonical tag, so the two mechanisms
+ * reinforce each other if either one is ever removed.
+ */
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.smartnailsandbeautyspa.co.za'
+).replace(/\/+$/, '');
+
+/** A self-referencing canonical for `path`, e.g. `canonical('/prices')`. */
+export function canonical(path = '/'): Pick<Metadata, 'alternates'> {
+  return { alternates: { canonical: path === '/' ? `${SITE_URL}/` : `${SITE_URL}${path}` } };
+}
+
 export function slugify(name: string): string {
   return name
     .toLowerCase()

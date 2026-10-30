@@ -3,12 +3,14 @@ import Link from 'next/link';
 import { PromoPopup } from '@/components/promo-popup';
 import { getActiveServices, getBusiness } from '@/lib/public-data';
 import { findSpecialPackageId } from '@/lib/flyer-prices';
+import { canonical } from '@/lib/seo';
 import { REVIEW_URL } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Smart Nails and Beauty Spa | Beauty Begins Here, Glenanda, Johannesburg South',
   description:
     'Smart Nails and Beauty Spa, 75 Amanda Avenue, Glenanda, Johannesburg South. Acrylics, gel, manicures, pedicures, lash extensions, massage and waxing. Book online in under a minute. Mon to Sat 8am to 8pm, Sun 9am to 4pm.',
+  ...canonical('/'),
 };
 
 /**

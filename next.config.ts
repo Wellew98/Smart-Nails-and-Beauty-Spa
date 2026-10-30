@@ -41,6 +41,25 @@ const nextConfig: NextConfig = {
    */
   async redirects() {
     return [
+      /**
+       * One site, one address.
+       *
+       * Vercel serves every project on `<project>.vercel.app` and there is no
+       * switch to turn that off. So when the custom domain was connected, the
+       * same pages started answering on two hostnames, and Google indexed both
+       * of them: searching for the salon returned a vercel.app result next to
+       * the real domain. Same content, two URLs, split authority.
+       *
+       * Sending the alias to the custom domain fixes it at the source. The
+       * canonical tags in each page's metadata are the backstop, for anything
+       * that reaches the alias without following a redirect.
+       */
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'smart-nails-and-beauty-spa.vercel.app' }],
+        destination: 'https://www.smartnailsandbeautyspa.co.za/:path*',
+        permanent: true,
+      },
       { source: '/treatments/pedicure', destination: '/treatments/manicure', permanent: true },
       { source: '/treatments/facials', destination: '/treatments', permanent: false },
       { source: '/treatments/makeup', destination: '/treatments', permanent: false },

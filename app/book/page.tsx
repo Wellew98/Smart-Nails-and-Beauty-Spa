@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { BookingFlow, type BookableDay, type BookableService } from '@/components/book/booking-flow';
 import { categoryLabelFor } from '@/lib/flyer-prices';
+import { canonical } from '@/lib/seo';
 import { getActiveServices, getBusiness, getOpeningHours, getStaffForService } from '@/lib/public-data';
 import { addDays, dayOfWeekInZone, todayInZone } from '@/lib/time';
 import { DAY_SHORT } from '@/lib/site';
@@ -8,6 +9,7 @@ import { DAY_SHORT } from '@/lib/site';
 export const metadata: Metadata = {
   title: 'Book',
   description: 'Pick a treatment, a therapist and a time. Live availability, confirmed instantly.',
+  ...canonical('/book'),
 };
 
 // Availability is live; nothing on this page may be prerendered.

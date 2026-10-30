@@ -8,6 +8,7 @@ import type { Visit } from '@/lib/account';
 export const metadata: Metadata = {
   title: 'Your visits',
   description: 'Sign in to see your visits and rebook in one tap.',
+  robots: { index: false, follow: false },
 };
 
 // Membership state is per visitor; nothing here may be prerendered.

@@ -2,12 +2,14 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getBusiness } from '@/lib/public-data';
 import { formatPhoneForDisplay, whatsappLink } from '@/lib/phone';
+import { canonical } from '@/lib/seo';
 import { PRIVACY_LAST_UPDATED } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Privacy',
   description:
     'What we collect when you book, what we use it for, and how to have it removed.',
+  ...canonical('/privacy'),
 };
 
 /**

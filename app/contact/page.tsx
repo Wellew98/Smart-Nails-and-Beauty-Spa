@@ -2,11 +2,13 @@ import type { Metadata } from 'next';
 import { BookButton } from '@/components/book-button';
 import { getBusiness, getOpeningHours } from '@/lib/public-data';
 import { formatPhoneForDisplay, whatsappLink } from '@/lib/phone';
+import { canonical } from '@/lib/seo';
 import { DAY_NAMES } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Contact',
   description: 'Where to find us, when we are open, and how to reach us.',
+  ...canonical('/contact'),
 };
 
 export default async function ContactPage() {

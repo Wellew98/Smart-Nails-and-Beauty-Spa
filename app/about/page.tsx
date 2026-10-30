@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import { BookButton } from '@/components/book-button';
 import { getActiveStaff, getBusiness } from '@/lib/public-data';
+import { canonical } from '@/lib/seo';
 import { SITE } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'About',
   description: 'A small studio with three therapists, proper appointment lengths and no rushing.',
+  ...canonical('/about'),
 };
 
 export default async function AboutPage() {

@@ -6,11 +6,13 @@ import { getActiveServices, getBusiness } from '@/lib/public-data';
 import { lacquerFor } from '@/lib/palette';
 import { formatDuration, formatZar } from '@/lib/money';
 import { NAIL_PHOTOS, STUDIO_PHOTO } from '@/lib/photos';
+import { canonical } from '@/lib/seo';
 import { SITE } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Gallery',
   description: 'Nail work from the studio in Glenanda, and the room you walk into. Book online.',
+  ...canonical('/gallery'),
 };
 
 /**

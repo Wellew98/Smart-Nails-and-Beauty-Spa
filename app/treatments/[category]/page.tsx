@@ -5,7 +5,7 @@ import { getActiveServices, getBusiness } from '@/lib/public-data';
 import { CATEGORY_CONTENT } from '@/lib/category-content';
 import { GROUP_IMAGES } from '@/lib/flyer-prices';
 import { formatZar } from '@/lib/money';
-import { slugEntries, slugify, SERVICE_AREAS } from '@/lib/seo';
+import { slugEntries, slugify, SERVICE_AREAS, canonical } from '@/lib/seo';
 import type { Service } from '@/lib/types';
 
 export async function generateStaticParams(): Promise<{ category: string }[]> {
@@ -31,6 +31,7 @@ export async function generateMetadata({
     description:
       `${content.label} at Smart Nails and Beauty Spa, ${SERVICE_AREAS.join(', ')}. ` +
       `${content.tagline}`,
+    ...canonical(`/treatments/${content.slug}`),
   };
 }
 

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CATEGORY_CONTENT } from '@/lib/category-content';
+import { canonical } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'Treatments in Glenanda',
@@ -8,6 +9,7 @@ export const metadata: Metadata = {
     'Every treatment at Smart Nails and Beauty Spa, Glenanda, Johannesburg South. ' +
     'Acrylics, gel, manicures, pedicures, massage, lash extensions, waxing and more. ' +
     'Book online in under a minute.',
+  ...canonical('/treatments'),
 };
 
 const unsplash = (id: string) => `https://images.unsplash.com/${id}?w=800&q=80&auto=format&fit=crop`;
