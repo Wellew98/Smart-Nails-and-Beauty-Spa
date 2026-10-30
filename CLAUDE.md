@@ -23,7 +23,13 @@ repo `Wellew98/Grace-Nail-and-Spa-`, live https://grace-nail-and-spa-two.vercel.
 ## Infra
 
 - GitHub: `Wellew98/Smart-Nails-and-Beauty-Spa` (branch main)
-- Live site: https://smart-nails-and-beauty-spa.vercel.app
+- **Canonical site: https://www.smartnailsandbeautyspa.co.za** (the owner's domain,
+  connected to the same Vercel project; apex 308s to www).
+- `https://smart-nails-and-beauty-spa.vercel.app` is the Vercel alias of the SAME
+  project. It cannot be switched off, so `next.config.ts` 308s that host to www and
+  every indexable page carries a self-referencing canonical. Never publish the
+  vercel.app address: Google indexed it alongside the domain and the salon showed
+  up twice in search (fixed 2026-10-30).
 - Supabase project "Smart Nails and Beauty Spa", region eu-west-1,
   ref `krmtpntzpcopfxbrgwps`, URL `https://krmtpntzpcopfxbrgwps.supabase.co`
 - Business UUID: `00000000-0000-4000-8000-0000000000b1`
